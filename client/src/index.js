@@ -1,9 +1,8 @@
 import Phaser from "phaser";
-import MainMenu from "./scenes";
+import MainMenu from "./scenes/MainMenu";
 
 const config = {
   type: Phaser.AUTO,
-  parent: "phaser-example",
   width: 1280,
   height: 780,
   scene: [
