@@ -6,6 +6,12 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
   mode: "development",
   devtool: "eval-source-map",
+  entry: {
+    app: '../client/src/index.js',
+  },
+  devServer: {
+    contentBase: '../dist',
+  },
   module: {
     rules: [
       {
@@ -25,6 +31,11 @@ module.exports = {
       }
     ]
   },
+  output:{
+    filename:'[name].bundle.js',
+    path: path.resolve(__dirname, '/client/dist'),
+    publicPath: '/',
+  },
   plugins: [
     new CleanWebpackPlugin({
       root: path.resolve(__dirname, "../")
@@ -34,7 +45,7 @@ module.exports = {
       WEBGL_RENDERER: JSON.stringify(true)
     }),
     new HtmlWebpackPlugin({
-      template: "./index.html"
+      template: "../client/index.html"
     })
   ]
 };
