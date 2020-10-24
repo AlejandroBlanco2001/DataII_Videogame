@@ -15,7 +15,7 @@ app.use(webpackDevMiddleware(compiler,{
     publicPath: config.output.publicPath,
 }));
 
-app.get('/game', (req,res) =>{
+app.get('/', (req,res) =>{
     console.log("Lo corri");
     res.sendFile(path.join(__dirname,"/index.html"));
 })
