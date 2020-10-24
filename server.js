@@ -6,6 +6,7 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 const config = require('./webpack/base.js');
+const PORT = process.env.PORT || 5000;
 const compiler = webpack(config);
 
 app.use("/src", express.static('./src/'));
@@ -20,6 +21,6 @@ app.get('/', (req,res) =>{
     res.sendFile(path.join(__dirname,"/index.html"));
 })
 
-app.listen(8080, () =>{
+app.listen(PORT, () =>{
     console.log("Listening on ${server.address().port}")
 })
