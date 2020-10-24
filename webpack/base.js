@@ -7,10 +7,10 @@ module.exports = {
   mode: "development",
   devtool: "eval-source-map",
   entry: {
-    app: '../client/src/index.js',
+    app: './src/index.js',
   },
   devServer: {
-    contentBase: '../dist',
+    contentBase: './dist',
   },
   module: {
     rules: [
@@ -33,7 +33,7 @@ module.exports = {
   },
   output:{
     filename:'[name].bundle.js',
-    path: path.resolve(__dirname, '/client/dist'),
+    path: path.resolve(__dirname, '/dist'),
     publicPath: '/',
   },
   plugins: [
@@ -45,7 +45,7 @@ module.exports = {
       WEBGL_RENDERER: JSON.stringify(true)
     }),
     new HtmlWebpackPlugin({
-      template: "../client/index.html"
+      template: "./index.html"
     })
   ]
 };
