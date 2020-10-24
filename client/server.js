@@ -10,6 +10,7 @@ const compiler = webpack(config);
 
 app.use("/src", express.static('./src/'));
 app.use("/phaser", express.static("./node_modules/phaser/"));
+
 app.use(webpackDevMiddleware(compiler,{
     publicPath: config.output.publicPath,
 }));
