@@ -11,7 +11,7 @@ export default class MainMenu extends Phaser.Scene{
     
     preload(){
         this.cursorKeys = this.input.keyboard.createCursorKeys();
-        this.server = io("https://move-quick-or-die.herokuapp.com/");
+        this.server = io();
         this.already = false;
     }
 
