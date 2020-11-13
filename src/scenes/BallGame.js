@@ -17,7 +17,6 @@ export default class BallGame extends Phaser.Scene{
     preload(){
         this.load.image("terrain", "src/assets/images/sci-fi-tileset.png");
         this.load.tilemapTiledJSON("spikeBallMap","src/assets/map/spikeBallMap.json");
-        this.load.
     }
 
     create(){

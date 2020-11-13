@@ -11,7 +11,7 @@ export default class MainMenu extends Phaser.Scene{
     
     preload(){
         this.cursorKeys = this.input.keyboard.createCursorKeys();
-        this.server = io("http://127.0.0.1:5000/");
+        this.server = io();
         this.already = false;
     }
 
