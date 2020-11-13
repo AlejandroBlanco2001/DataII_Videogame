@@ -1,4 +1,4 @@
-import Phaser from "phaser";
+import Phaser from "../node_modules/phaser";
 import MainMenu from "./scenes/MainMenu";
 import Lobby from "./scenes/Lobby";
 import BallGame from "./scenes/BallGame";
