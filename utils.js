@@ -13,7 +13,6 @@ function randomInteger(min,max){
     Generate the random identifier for a room 
 */
 function generateRandomID(){
-    if(isAnyRoomAvailable()){
       let letters = "abcdefghijklmnopqrstuvwxyz";
       let ID = "";
       for(let i = 0; i < 6; i++){
@@ -26,10 +25,6 @@ function generateRandomID(){
       const_namespaces_rooms[AVAILABLE_ROOM] = ID;
       AVAILABLE_ROOM += 1;
       return ID;
-    }else{
-        console.log("ROOMS NO AVAILABLES");
-        return null;
-    }
 }
 
 /**
@@ -37,6 +32,15 @@ function generateRandomID(){
  */
 function isAnyRoomAvailable(){
     return MAX_ROOMS != AVAILABLE_ROOM;
+}
+
+function checkUniqueID(ID){
+    for(let i = 0; i < const_namespaces_rooms.length; i++){
+        if(ID == const_namespaces_rooms[i]){
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -53,10 +57,7 @@ function isRoomFull(rooms,room){
 }
 
 module.exports = {
-    getRoomIdByName: getRoomIdByName,
-    getRoom: getRoom,
     checkUserInRoom: checkUserInRoom,
     isAnyRoomAvailable: isAnyRoomAvailable,
     generateRandomID: generateRandomID,
-    checkUniqueID: checkUniqueID
 }

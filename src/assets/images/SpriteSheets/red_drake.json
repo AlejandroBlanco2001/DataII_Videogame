@@ -1,0 +1,41 @@
+{
+	"textures": [
+		{
+			"image": "red_drake.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 571,
+				"h": 20
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "mort.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 576,
+						"h": 24
+					},
+					"spriteSourceSize": {
+						"x": 5,
+						"y": 2,
+						"w": 571,
+						"h": 20
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 571,
+						"h": 20
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:257e188cbd12b6ace43c57110b98a77f:4d927e1cf4282576851e68e86107f9ca:939bbbf2a2d1cbf6deed19ccb37e1cf2$"
+	}
+}

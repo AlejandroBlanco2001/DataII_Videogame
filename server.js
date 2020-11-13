@@ -1,3 +1,4 @@
+
 const express = require('express');
 const utils = require('./utils');
 const path = require('path')
@@ -22,7 +23,7 @@ app.use(cors());
 
 /**
  * Static files directory
- */
+*/
 app.use("/src", express.static('./src/'));
 app.use("/phaser", express.static("./node_modules/phaser/"));
 
@@ -41,39 +42,68 @@ const io = socket(server);
 
 app.get('/', (req,res) =>{
     console.log("Lo corri");
-    res.sendFile(path.join(__dirname,"/index.html"));
+    res.sendFile(path.join(__dirname,"index.html"));
 })
 
-const joinRoom = (socket, room) => {
+const joinRoom = (socket,player,room) => {
     room.sockets.push(socket);
+    room.players.push(player);
     socket.join(room.id, () =>{
         socket.roomId = room.id;
         console.log(socket.id, "Joined", room.id);
     });
 };
 
-io
-    .of("/")
-    .on("connection", (socket) => {
+/**
+ * Metodo que se encarga de manera asincronica mandar el listado de jugadores por sala
+ * @param {String} roomId 
+ */
+const refreshLobby = (roomId) =>{
+    return new Promise(() =>{
+        setTimeout(() =>{
+            let room = rooms[roomId];
+            io.to(room.id).emit("RefreshLobby", room.players);
+        }, 200);
+    });
+};
 
-        socket.emit("welcome", "Hello and Welcome to the Socket.io Server");
+io
+    .on("connection", (socket) => {
         console.log("SOMEONE IS IN THE SOCKET");    
 
-        socket.on("createRoom", () => {
+        socket.on("createRoom", async (player) => { 
             let name = utils.generateRandomID();
             console.log(name);
             const room = {
                 id: name,
                 name: uuid.v1(),
+                host: socket.id,
+                players: [],
                 sockets: []
             };
             rooms[room.id] = room;
-            joinRoom(socket,room);
+            joinRoom(socket,player,room);
             socket.emit("createdRoom",name);
+            await refreshLobby(room.id);
         });
 
-        socket.on("joinRoom", (roomId) =>{
+        socket.on("joinRoom", async (roomId,player) =>{
             const room = rooms[roomId];
-            joinRoom(socket,room);
-        })
+            joinRoom(socket,player,room);
+            socket.emit("createdRoom", roomId);
+            await refreshLobby(roomId);
+        });
+
+        socket.on("FindHost", (roomID) =>{
+            let room = rooms[roomID];
+            if(room.host == socket.id){
+                socket.emit("Host",true);
+            }else{
+                socket.emit("Host",false);
+            }
+        });
+
+        socket.on("StartGame", (roomID) =>{
+            io.to(roomID).emit("RoundStart", "Partida iniciada");
+        });
 });
