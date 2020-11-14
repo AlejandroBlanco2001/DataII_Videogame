@@ -1,6 +1,3 @@
-import io from 'socket.io-client';
-import Player from "../entities/Character/Player.js"
-
 export default class Lobby extends Phaser.Scene{
     constructor(){
         super({

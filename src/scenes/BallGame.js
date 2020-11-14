@@ -1,6 +1,4 @@
-import io from 'socket.io-client';
 import Player from '../entities/Character/Player';
-var spike;
 
 export default class BallGame extends Phaser.Scene{
     constructor(){
