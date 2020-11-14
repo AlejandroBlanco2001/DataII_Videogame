@@ -41,7 +41,7 @@ const server = app.listen(PORT, () =>{
 
 const io = socket(server);
 
-app.get('/', (req,res) =>{
+app.get('*', (req,res) =>{
     console.log("Lo corri");
     res.sendFile(path.join(__dirname,"index.html"));
 })
