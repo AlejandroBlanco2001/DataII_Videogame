@@ -106,5 +106,6 @@ io
 
         socket.on("StartGame", (roomID) =>{
             io.to(roomID).emit("RoundStart", "Partida iniciada");
+            console.log("called");
         });
 });

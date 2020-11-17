@@ -4,21 +4,21 @@ export default class MainMenu extends Phaser.Scene{
     constructor(){
         super({
             key: 'MainMenu',
-            active: true
+            active: false
         });
     }
 
     
     preload(){
-        this.cursorKeys = this.input.keyboard.createCursorKeys();
-        this.server = io();
-        this.already = false;
     }
 
     create(){
         let font = {
             fontFamily : "Georgia"
         }
+        this.cursorKeys = this.input.keyboard.createCursorKeys();
+        this.server = io();
+        this.already = false;
         this.add.text(640, 100,"Move quick or Die", font);
         this.add.text(640,300, "Create a Room", font);
         this.add.text(640,360, "Join Room", font);
@@ -38,14 +38,17 @@ export default class MainMenu extends Phaser.Scene{
             }
         }
         this.server.on("createdRoom", (roomID) => {
-            let socketID = this.server;
-            let data = {
-                id: roomID,
-                socket: socketID,
-                username: this.username
+            if(this.scene.isActive()){
+                let socketID = this.server;
+                let data = {
+                    id: roomID,
+                    socket: socketID,
+                    username: this.username
+                }
+                this.scene.launch("Lobby", data);
+                this.scene.setActive(false);
+                this.scene.stop();
             }
-            this.scene.start("Lobby", data);
-            this.scene.stop("MainMenu");
         });
         this.server.on("roomsAv", (msg) => console.log(msg));
     }

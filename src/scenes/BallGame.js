@@ -9,7 +9,9 @@ export default class BallGame extends Phaser.Scene{
     }
 
     init(data){
-        this.scene.active = true;
+        this.roomID = data.roomID;
+        this.username = data.username;
+        this.server = data.server;
     }
     
     preload(){
@@ -25,7 +27,6 @@ export default class BallGame extends Phaser.Scene{
         let botLayer = spikeBallMap.createStaticLayer("bot", [this.terrain],0,0).setDepth(-1);
         let topLayer = spikeBallMap.createStaticLayer("top", [this.terrain],0,0);
    
-        this.player = new Player();
     }
 
     update(){
