@@ -11,7 +11,14 @@ const config = {
     MainMenu,
     Lobby,
     BallGame
-  ]
+  ],
+  physics: {
+    default: 'arcade',
+    arcade: {
+      gravity : {y: 100},
+      debug: true
+    }
+  }
 };
 
 const game = new Phaser.Game(config);

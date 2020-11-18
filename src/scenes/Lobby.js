@@ -51,7 +51,8 @@ export default class Lobby extends Phaser.Scene{
                 let data = {
                     username: this.username,
                     server: this.server,
-                    roomID: this.roomID
+                    roomID: this.roomID,
+                    host: this.host
                 }
                 this.scene.start("BallGame",data);
                 this.scene.setActive(false);

@@ -89,10 +89,12 @@ io
         });
 
         socket.on("joinRoom", async (roomId,player) =>{
-            const room = rooms[roomId];
-            joinRoom(socket,player,room);
-            socket.emit("createdRoom", roomId);
-            await refreshLobby(roomId);
+            if(utils.checkUserInRoom(rooms,roomId,socket.id)){
+                const room = rooms[roomId];
+                joinRoom(socket,player,room);
+                socket.emit("createdRoom", roomId);
+                await refreshLobby(roomId);
+            }
         });
 
         socket.on("FindHost", (roomID) =>{
@@ -107,5 +109,9 @@ io
         socket.on("StartGame", (roomID) =>{
             io.to(roomID).emit("RoundStart", "Partida iniciada");
             console.log("called");
+        });
+
+        socket.on("UpdateMe", (dataPlayer) =>{
+            
         });
 });

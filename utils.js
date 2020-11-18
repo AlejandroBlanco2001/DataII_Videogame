@@ -48,8 +48,15 @@ function checkUniqueID(ID){
  * @param {*} rooms - Salas a verificar
  * @param {String} idUser - Cadena que representa el ID del usuario
  */
-function checkUserInRoom(rooms, idUser){
-
+function checkUserInRoom(rooms,idRoom, userID){
+    let room = rooms[idRoom];
+    let players = room.players;
+    for(var key of Object.keys(players)){
+        if(key == userID){
+            return true;
+        }
+    }
+    return false;
 }
 
 function isRoomFull(rooms,room){
