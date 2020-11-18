@@ -1,3 +1,5 @@
+import Player from "../entities/Character/Player";
+
 export default class BallGame extends Phaser.Scene{
     constructor(){
         super({
@@ -31,43 +33,40 @@ export default class BallGame extends Phaser.Scene{
     }
 
     create(){
-        this.player = this.physics.add.sprite(400,400,"drake").setScale(2);
+        this.player = new Player(400,400,this,"drake",this.username);
         let spikeBallMap = this.add.tilemap("spikeBallMap");
         this.terrain = spikeBallMap.addTilesetImage("sci-fi-tileset","terrain");
         
 
         this.keyboard = this.input.keyboard.addKeys("W, A, S, D");
         // layers 
-        let botLayer = spikeBallMap.createStaticLayer("bot", [this.terrain],0,0).setDepth(-1);
-        let topLayer = spikeBallMap.createStaticLayer("top", [this.terrain],0,0);
+        let topLayer = spikeBallMap.createStaticLayer("bot", [this.terrain], 0, 0).setDepth(-1);
+        let botLayer = spikeBallMap.createStaticLayer("top", [this.terrain], 0, 0);
    
+        //map collisions
+        this.physics.add.collider(this.player, botLayer);
+        botLayer.setCollisionByProperty({
+            collides: true
+        });
+
+        this.physics.add.collider(this.player, topLayer);
+        topLayer.setCollisionByProperty({
+            collides: true
+        });
+
+        const debugGraphics = this.add.graphics().setAlpha(0.7);
+
+        /* DEBUG GRAPHICS
+        topLayer.renderDebug(debugGraphics,{
+            tileCOlor: null,
+            collidingTileColor: new Phaser.Display.Color(243, 234,48,255),
+            faceColor: new Phaser.Display.Color(43,39,37,255)
+        });
+        */
     }
 
     update(time, delta){
-        if(this.keyboard.D.isDown){
-            console.log("MOVE");
-            this.player.setVelocityX(24);
-        }
-
-        if(this.keyboard.A.isDown){
-            this.player.setVelocityX(-24);
-        }
-
-        if(this.keyboard.S.isDown){
-            this.player.setVelocityY(-24);
-        }
-
-        if(this.keyboard.W.isDown){
-            this.player.setVelocityY(24);
-        }
-        
-        if(this.keyboard.A.isUp && this.keyboard.D.isUp){ // Not moving x 
-            this.player.setVelocityX(0);
-        }
-
-        if(this.keyboard.W.isUp && this.keyboard.S.isUp){ // Not moving y 
-            this.player.setVelocityY(0);
-        }
+        this.player.update(this.keyboard);
     }
 
 
