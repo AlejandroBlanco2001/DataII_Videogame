@@ -10,6 +10,7 @@ export default class BallGame extends Phaser.Scene{
         this.player;
         this.playerObjects = {};
         this.spikeBall;
+        this.updateT = false;
     }
 
     init(data){
@@ -101,16 +102,20 @@ export default class BallGame extends Phaser.Scene{
             room : this.roomID,
             user : this.username,
             x : this.player.x,
-            y : this.player.y
+            y : this.player.y,
+            state: this.player.active
         }
         this.server.on("updateGame", (dataPack) =>{
-            for(let i = 0; i < dataPack.length; i++){
-                this.playersList[dataPack[i].user].setX(dataPack[i].x);
-                this.playersList[dataPack[i].user].setY(dataPack[i].y);
+            for(var key in dataPack){
+                var player = dataPack[key];
+                if(player.active){
+                    this.playerObjects[player.username].setX(player.x);
+                    this.playerObjects[player.username].setY(player.y);
+                }
             }
         });
-        this.server.emit("UpdateMe",data);
         this.server.emit("update", this.roomID);
+        this.server.emit("UpdateMe",data);
     }
 
 

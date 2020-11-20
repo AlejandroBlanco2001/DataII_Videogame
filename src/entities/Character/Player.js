@@ -14,6 +14,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
 
         // Debug parameters
 
+        // Server-Side usefull things
+
     }
 
     configAABB(config){
@@ -34,8 +36,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         }
         if(keyboard.W.isDown && this.body.blocked.down){  
             this.setVelocityY(-200);
-        }
-            
+        }   
         if(keyboard.A.isUp && keyboard.D.isUp){ // Not moving x 
             this.setVelocityX(0); 
         }

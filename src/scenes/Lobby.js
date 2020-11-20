@@ -39,10 +39,7 @@ export default class Lobby extends Phaser.Scene{
         }
 
         this.server.on("RefreshLobby", (players) => {
-            this.players = "";
-            for(var key in players){
-                this.players += "\n" + players[key].username;
-            }
+            this.players = players;
         });
 
         this.server.on("RoundStart",(players) => {
@@ -54,7 +51,6 @@ export default class Lobby extends Phaser.Scene{
                     host: this.host,
                     players: players
                 }
-                console.log(players);
                 this.scene.start("BallGame",data);
                 this.scene.setActive(false);
                 this.scene.stop("Lobby");

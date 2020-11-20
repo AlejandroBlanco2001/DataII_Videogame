@@ -27,7 +27,6 @@ export default class MainMenu extends Phaser.Scene{
 
     update(){
         if(this.cursorKeys.down.isDown){
-            console.log("entre");
             this.server.emit("createRoom",this.username);
         }
         if(this.cursorKeys.space.isDown && !this.already){
