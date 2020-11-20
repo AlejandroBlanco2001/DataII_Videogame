@@ -20,30 +20,29 @@ export default class Lobby extends Phaser.Scene{
         this.font = {
             fontFamily : "Georgia"
         }
-        this.server.emit("FindHost", this.roomId);
         this.players = "";
         this.already = false;
-        this.server.on("Host", (verification) =>{
-            if(verification == true){
-                this.host = true;
-            }else{
-                this.host = false;
-            }
-        });
         this.cursorKeys = this.input.keyboard.createCursorKeys();
     }
 
     update(){
-        this.add.text(640,300, "Room" + this.roomId, this.font);
-        this.add.text(100,100,this.players,this.font);
+        this.add.text(640,300, "Room: " + this.roomId, this.font);
+        this.add.text(500,300, "In the room are" + this.players, this.font);
         
-        if(this.cursorKeys.space.isDown && this.host && !this.already){
-            this.server.emit("StartGame", this.roomId);
-            this.already = true;
+        if(this.cursorKeys.space.isDown){
+            this.server.emit("isLeader", this.roomId);
+            this.server.on("Leader", (host) =>{
+               if(host){    
+                   this.server.emit("StartGame", this.roomId);
+               } 
+            });
         }
 
         this.server.on("RefreshLobby", (players) => {
-            this.players = players.username;
+            this.players = "";
+            for(var key in players){
+                this.players += "\n" + players[key].username;
+            }
         });
 
         this.server.on("RoundStart",(players) => {
@@ -55,6 +54,7 @@ export default class Lobby extends Phaser.Scene{
                     host: this.host,
                     players: players
                 }
+                console.log(players);
                 this.scene.start("BallGame",data);
                 this.scene.setActive(false);
                 this.scene.stop("Lobby");

@@ -56,7 +56,7 @@ function checkUniqueID(ID){
  */
 function checkUserInRoom(rooms,idRoom, userID){
     let room = rooms[idRoom];
-    let players = room.players;
+    let players = room.sockets;
     var i;
     for(var key of Object.keys(players)){
         i += 1;    

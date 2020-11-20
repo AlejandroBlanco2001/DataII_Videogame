@@ -7,8 +7,8 @@ export default class BallGame extends Phaser.Scene{
             key: "BallGame",
             active: false
         });
-        this.playersList = {};
         this.player;
+        this.playerObjects = {};
         this.spikeBall;
     }
 
@@ -17,7 +17,7 @@ export default class BallGame extends Phaser.Scene{
         this.username = data.username;
         this.server = data.server;
         this.host = data.host;
-        this.playerName = data.players;
+        this.players = data.players;
     }
     
     preload(){
@@ -38,18 +38,19 @@ export default class BallGame extends Phaser.Scene{
     }
 
     create(){
-        for(let i = 0; i < this.playerName.length; i++){
-            let user = this.playerName[i].username;
-            var x = this.playerName[i].position.x;
-            var y = this.playerName[i].position.y;
-            var p;
+        for(var key in this.players){
+            let p = this.players[key];
+            let user = p.username;
+            var x = p.x;
+            var y = p.y;
+            var character;
             if(user == this.username){
                 this.player = new Player(x,y,this,"drake",user);
-                p = this.player;
+                character = this.player;
             }else{
-                p = new Player(x,y,this,"drake",user);
+                character = new Player(x,y,this,"drake",user);
             }
-            this.playersList[user] = p;
+            this.playerObjects[user] = character;
         }
         let spikeBallMap = this.add.tilemap("spikeBallMap");
         this.terrain = spikeBallMap.addTilesetImage("sci-fi-tileset","terrain");
@@ -63,9 +64,9 @@ export default class BallGame extends Phaser.Scene{
         let spikeBallLayer = spikeBallMap.createStaticLayer("BoxPattern",[this.terrain], 0, 0).setDepth(-2);
         
         //map collisions with Player and SpikeBall
-        for(let i = 0; i < this.playerName.length; i++){
+        for(var key in this.playerObjects){
 
-            let p = this.playersList[this.playerName[i].username];
+            let p = this.playerObjects[key];
 
             this.physics.add.collider(p, botLayer);
             botLayer.setCollisionByProperty({
@@ -78,7 +79,7 @@ export default class BallGame extends Phaser.Scene{
             });
 
             // collisions with player and spikeBall
-            this.physics.add.collider(p,this.spikeBall, () =>{
+            this.physics.add.overlap(p,this.spikeBall, () =>{
                 p.destroy();
             });
         }
@@ -90,19 +91,9 @@ export default class BallGame extends Phaser.Scene{
         spikeBallLayer.setCollisionByProperty({
             hitByBall: true
         })
-
-        /*
-        const debugGraphics = this.add.graphics().setAlpha(0.7);
-
-        topLayer.renderDebug(debugGraphics,{
-            tileCOlor: null,
-            collidingTileColor: new Phaser.Display.Color(243, 234,48,255),
-            faceColor: new Phaser.Display.Color(43,39,37,255)
-        });
-        */
     }
 
-    update(time, delta){
+    update(){
         if(this.player.active){
             this.player.update(this.keyboard);
         }
@@ -112,7 +103,6 @@ export default class BallGame extends Phaser.Scene{
             x : this.player.x,
             y : this.player.y
         }
-        this.server.emit("update",this.roomID);
         this.server.on("updateGame", (dataPack) =>{
             for(let i = 0; i < dataPack.length; i++){
                 this.playersList[dataPack[i].user].setX(dataPack[i].x);
@@ -120,6 +110,7 @@ export default class BallGame extends Phaser.Scene{
             }
         });
         this.server.emit("UpdateMe",data);
+        this.server.emit("update", this.roomID);
     }
 
 

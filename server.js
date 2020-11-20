@@ -13,9 +13,23 @@ const { Console } = require('console');
 const compiler = webpack(config);
 const PORT = process.env.PORT || 5000;
 
-
 const rooms = {};
-const roomS = [];
+
+/**
+ * Abstraccion del personaje por parte del servidor
+ * @param {} username 
+ * @param {*} x 
+ * @param {*} y 
+ * @param {*} active 
+ */
+function Player(socket,username,x,y,active,host){
+    this.host = host;
+    this.username = username;
+    this.socket = socket;
+    this.x = x;
+    this.y = y;
+    this.active = active;
+}
 
 /**
  * CORS ERROR Management
@@ -47,13 +61,9 @@ app.get('*', (req,res) =>{
     res.sendFile(path.join(__dirname,"index.html"));
 })
 
-const joinRoom = (socket,player,room) => {
-    let playerData = {
-        username: player,
-        position: utils.getRandomRespawn()
-    }
-    room.sockets.push(socket);
-    room.players.push(playerData);
+const joinRoom = (socket,player,room,host) => {
+    let p = new Player(socket.id,player,utils.getRandomRespawn().x, utils.getRandomRespawn().y, true);
+    room.sockets[socket.id] = p;
     socket.join(room.id, () =>{
         socket.roomId = room.id;
         console.log(socket.id, "Joined", room.id);
@@ -68,7 +78,7 @@ const refreshLobby = (roomId) =>{
     return new Promise(() =>{
         setTimeout(() =>{
             let room = rooms[roomId];
-            io.to(room.id).emit("RefreshLobby", room.players);
+            io.to(room.id).emit("RefreshLobby", room.sockets);
         }, 200);
     });
 };
@@ -83,13 +93,11 @@ io
                 id: name,
                 name: uuid.v1(),
                 host: socket.id,
-                players: [],
-                sockets: [],
+                sockets: {},
                 playing: false
             };
             rooms[room.id] = room;
-            roomS.push(name);
-            joinRoom(socket,player,room);
+            joinRoom(socket,player,room,true);
             socket.emit("createdRoom",name);
             await refreshLobby(room.id);
         });
@@ -97,65 +105,34 @@ io
         socket.on("joinRoom", async (roomId,player) =>{
             if(!utils.checkUserInRoom(rooms,roomId)){
                 const room = rooms[roomId];
-                joinRoom(socket,player,room);
+                joinRoom(socket,player,room,false);
                 socket.emit("createdRoom", roomId);
                 await refreshLobby(roomId);
             }
         });
 
-        socket.on("FindHost", (roomID) =>{
-            let room = rooms[roomID];
-            if(room.host == socket.id){
-                socket.emit("Host",true);
-            }else{
-                socket.emit("Host",false);
-            }
+        socket.on("isLeader",(roomID) =>{
+            let host = rooms[roomID].host == socket.id;
+            socket.emit("Leader",host);
         });
 
         socket.on("StartGame", (roomID) =>{
-            let players = rooms[roomID].players;
-            var pos;
-            for(let i = 0; i < players.length; i++){
-                pos = utils.getRandomRespawn(); 
-                players[i].pos.x = pos.x;
-                players[i].pos.y = pos.y;
-            }
+            let players = rooms[roomID].sockets;
             rooms[roomID].playing = true;
             io.to(roomID).emit("RoundStart", players);
         });
         
         socket.on("UpdateMe", (data) =>{
             let room = rooms[data.room];
-            let players = room.players;
-            for(let i = 0; i < players.length;  i++){
-                if(players[i].username == data.user){
-                    players[i].position.x = data.x;
-                    players[i].position.y = data.y;
-                    break;
-                }
-            }
-        })
+            let players = room.sockets;
+            let p = players[socket.id];
+            p.x = data.x;
+            p.y = data.y;
+        });
 
-        setInterval(() =>{
-            for(let i = 0; i < roomS.length; i++){
-                let room = rooms[roomS[i]];
-                if(!room.playing){
-                    let pack = [];
-                }
-            }
-        },1000/25);
-
-        socket.on("update", (roomID) =>{
-            let pack = [];
+        socket.on("update",(roomID) => {
             let room = rooms[roomID];
-            let players = room.players;
-            for(let i = 0; i < players.length; i++){
-                pack.push({
-                    user : players[i].username,
-                    x : players[i].position.x,
-                    y: players[i].position.y
-                })
-            }
-            io.to(roomID).emit("updateGame",pack);
+            let players = room.sockets;
+            io.to(roomID).emit("updateGame",players);
         });
 });
