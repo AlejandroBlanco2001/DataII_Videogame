@@ -34,25 +34,26 @@ export default class Lobby extends Phaser.Scene{
     }
 
     update(){
-        this.add.text(640,300, "You are the host" + this.host, this.font);
+        this.add.text(640,300, "Room" + this.roomId, this.font);
         this.add.text(100,100,this.players,this.font);
         
         if(this.cursorKeys.space.isDown && this.host && !this.already){
             this.server.emit("StartGame", this.roomId);
-            this.alreayd = true;
+            this.already = true;
         }
 
         this.server.on("RefreshLobby", (players) => {
-            this.players = players;
+            this.players = players.username;
         });
 
-        this.server.on("RoundStart",(msg) => {
+        this.server.on("RoundStart",(players) => {
             if(this.scene.isActive()){
                 let data = {
                     username: this.username,
                     server: this.server,
-                    roomID: this.roomID,
-                    host: this.host
+                    roomID: this.roomId,
+                    host: this.host,
+                    players: players
                 }
                 this.scene.start("BallGame",data);
                 this.scene.setActive(false);

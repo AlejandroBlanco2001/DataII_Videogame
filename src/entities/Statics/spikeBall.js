@@ -9,18 +9,18 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
 
         // AABB and Size
         this.setCollideWorldBounds(true); 
-        
+
         this.setScale(0.2);
         this.body.setCircle(190);
 
-        this.setAngularVelocity(54);
         this.body.bounce.set(1);
     }
 
     faster(){
-        if(this.angularV <= 1000){
-            this.angularV += 50;
-            this.setAngularVelocity(this.angularV);
+        if(this.body.angularVelocity <= 800){
+            this.body.angularVelocity += 200;
         }
+        this.setVelocityX(this.body.velocity.x + 40);
+        this.setVelocityY(this.body.velocity.y - 40);
     }
 }

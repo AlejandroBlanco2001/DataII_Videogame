@@ -9,11 +9,13 @@ const app = express();
 const socket = require('socket.io');
 const config = require('./webpack/base.js');
 const { callbackify } = require('util');
+const { Console } = require('console');
 const compiler = webpack(config);
 const PORT = process.env.PORT || 5000;
 
 
 const rooms = {};
+const roomS = [];
 
 /**
  * CORS ERROR Management
@@ -46,8 +48,12 @@ app.get('*', (req,res) =>{
 })
 
 const joinRoom = (socket,player,room) => {
+    let playerData = {
+        username: player,
+        position: utils.getRandomRespawn()
+    }
     room.sockets.push(socket);
-    room.players.push(player);
+    room.players.push(playerData);
     socket.join(room.id, () =>{
         socket.roomId = room.id;
         console.log(socket.id, "Joined", room.id);
@@ -69,8 +75,7 @@ const refreshLobby = (roomId) =>{
 
 io
     .on("connection", (socket) => {
-        console.log("SOMEONE IS IN THE SOCKET");    
-
+        
         socket.on("createRoom", async (player) => { 
             let name = utils.generateRandomID();
             console.log(name);
@@ -79,16 +84,18 @@ io
                 name: uuid.v1(),
                 host: socket.id,
                 players: [],
-                sockets: []
+                sockets: [],
+                playing: false
             };
             rooms[room.id] = room;
+            roomS.push(name);
             joinRoom(socket,player,room);
             socket.emit("createdRoom",name);
             await refreshLobby(room.id);
         });
 
         socket.on("joinRoom", async (roomId,player) =>{
-            if(utils.checkUserInRoom(rooms,roomId,socket.id)){
+            if(!utils.checkUserInRoom(rooms,roomId)){
                 const room = rooms[roomId];
                 joinRoom(socket,player,room);
                 socket.emit("createdRoom", roomId);
@@ -106,11 +113,49 @@ io
         });
 
         socket.on("StartGame", (roomID) =>{
-            io.to(roomID).emit("RoundStart", "Partida iniciada");
-            console.log("called");
+            let players = rooms[roomID].players;
+            var pos;
+            for(let i = 0; i < players.length; i++){
+                pos = utils.getRandomRespawn(); 
+                players[i].pos.x = pos.x;
+                players[i].pos.y = pos.y;
+            }
+            rooms[roomID].playing = true;
+            io.to(roomID).emit("RoundStart", players);
         });
+        
+        socket.on("UpdateMe", (data) =>{
+            let room = rooms[data.room];
+            let players = room.players;
+            for(let i = 0; i < players.length;  i++){
+                if(players[i].username == data.user){
+                    players[i].position.x = data.x;
+                    players[i].position.y = data.y;
+                    break;
+                }
+            }
+        })
 
-        socket.on("UpdateMe", (dataPlayer) =>{
-            
+        setInterval(() =>{
+            for(let i = 0; i < roomS.length; i++){
+                let room = rooms[roomS[i]];
+                if(!room.playing){
+                    let pack = [];
+                }
+            }
+        },1000/25);
+
+        socket.on("update", (roomID) =>{
+            let pack = [];
+            let room = rooms[roomID];
+            let players = room.players;
+            for(let i = 0; i < players.length; i++){
+                pack.push({
+                    user : players[i].username,
+                    x : players[i].position.x,
+                    y: players[i].position.y
+                })
+            }
+            io.to(roomID).emit("updateGame",pack);
         });
 });

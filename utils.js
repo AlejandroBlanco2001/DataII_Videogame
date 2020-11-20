@@ -1,6 +1,12 @@
 var const_namespaces_rooms = [];
 const MAX_ROOMS = 8;
 var AVAILABLE_ROOM = 0;
+const posibleRespawnPoints = [{x:256,y:627,respawn:false},
+    {x:494,y:577,respawn:false},{x:640,y:577,respawn:false},
+    {x:861,y:627,respawn:false},{x:868,y:341,respawn:false},
+    {x:189,y:367,respawn:false},{x:391,y:214,respawn:false},
+    {x:599,y:286,respawn:false}];
+
 
 /** 
   Inclusive random generate integers
@@ -10,7 +16,7 @@ function randomInteger(min,max){
 }
 
 /** 
-    Generate the random identifier for a room 
+* Generate the random identifier for a room 
 */
 function generateRandomID(){
       let letters = "abcdefghijklmnopqrstuvwxyz";
@@ -51,20 +57,30 @@ function checkUniqueID(ID){
 function checkUserInRoom(rooms,idRoom, userID){
     let room = rooms[idRoom];
     let players = room.players;
+    var i;
     for(var key of Object.keys(players)){
-        if(key == userID){
-            return true;
-        }
+        i += 1;    
     }
-    return false;
+    return i == 8;
 }
 
-function isRoomFull(rooms,room){
-    position = getRoom(room);
+/**
+ * Metodo que se encarga de recibir una coordenada aleatoria donde reaparecer
+ */
+function getRandomRespawn(){
+    let index = randomInteger(0,posibleRespawnPoints.length-1);
+    let posRespawn = posibleRespawnPoints[index];
+    while(posRespawn.respawn){
+        index = randomInteger(0,posibleRespawnPoints.length-1);
+        posRespawn = posibleRespawnPoints[index];
+    }
+    index.respawn = true;
+    return posRespawn;
 }
 
 module.exports = {
     checkUserInRoom: checkUserInRoom,
     isAnyRoomAvailable: isAnyRoomAvailable,
     generateRandomID: generateRandomID,
+    getRandomRespawn: getRandomRespawn,
 }
