@@ -15,9 +15,9 @@ class Player extends BaseModel{
         return this.username;
     }
 
-    updateCoords(x,y){
-        this.x = x;
-        this.y = y;
+    updateCoords(data){
+        this.x = data.x;
+        this.y = data.y;
     }
 }
 

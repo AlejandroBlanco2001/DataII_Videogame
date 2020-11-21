@@ -9,7 +9,7 @@ const posibleRespawnPoints = [{x:256,y:627,respawn:false},
 
 
 /** 
-  Inclusive random generate integers
+    Inclusive random generate integers
 */
 function randomInteger(min,max){
     return Math.floor(Math.random()*(max-min+1) +min);
@@ -19,18 +19,18 @@ function randomInteger(min,max){
 * Generate the random identifier for a room 
 */
 function generateRandomID(){
-      let letters = "abcdefghijklmnopqrstuvwxyz";
-      let ID = "";
-      for(let i = 0; i < 6; i++){
-          let random = randomInteger(0,26);
-          ID += letters.charAt(random);
-      }
-      while(!checkUniqueID(ID)){
-          generateRandomID();
-      }
-      const_namespaces_rooms[AVAILABLE_ROOM] = ID;
-      AVAILABLE_ROOM += 1;
-      return ID;
+    let letters = "abcdefghijklmnopqrstuvwxyz";
+    let ID = "";
+    for(let i = 0; i < 6; i++){
+        let random = randomInteger(0,26);
+        ID += letters.charAt(random);
+    }
+    while(!checkUniqueID(ID)){
+        generateRandomID();
+    }
+    const_namespaces_rooms[AVAILABLE_ROOM] = ID;
+    AVAILABLE_ROOM += 1;
+    return ID;
 }
 
 /**
@@ -54,7 +54,7 @@ function checkUniqueID(ID){
  * @param {*} rooms - Salas a verificar
  * @param {String} idUser - Cadena que representa el ID del usuario
  */
-function checkUserInRoom(rooms,idRoom, userID){
+function checkUserInRoom(rooms,idRoom){
     let room = rooms[idRoom];
     let players = room.sockets;
     var i;

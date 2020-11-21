@@ -1,14 +1,14 @@
 class Room{
-    constructor(id,host){
+    constructor(id,host,state){
         this.id = id;
         this.host = host;
+        this.playing = state;
         this.sockets = {};
     }
 
-    onConnect(socket,io){
-        socket.on("updateGame", () => {
-            
-        })
+    updatePlayers(socket,data){
+        let p = this.sockets[socket.id];
+        p.updateCoords(data);
     }
 
     getPlayers(){
@@ -29,7 +29,6 @@ class Room{
 
     addPlayer(player){
         if(player != null){
-            console.log(player);
             this.sockets[player.socket] = player;
         }
     }
@@ -43,6 +42,7 @@ class Room{
         for(var id in this.sockets){
             players += "\n" + this.sockets[id].getUsername();
         }
+        console.log(players);
         return players;
     }
 }

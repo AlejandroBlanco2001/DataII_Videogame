@@ -6,7 +6,8 @@ const Player =  require("../models/Player");
 class RoomManager{
 
     static rooms = {};
-     
+    static gameStarted = false;
+
     static joinRoom(room,socket,username,host){
         let pos = Utilities.getRandomRespawn();
         let p = new Player(socket.id,pos,host,username);
@@ -35,15 +36,15 @@ class RoomManager{
         
         socket.on("createRoom", async (username) =>{
             let id = Utilities.generateRandomID();
-            let r = new Room(id,socket.id);
+            let r = new Room(id,socket.id,false);
             this.rooms[id] = r; 
             this.joinRoom(r,socket,username,true);
             socket.emit("createdRoom",id);
             await this.refreshLobby(id);
         });
 
-        socket.on("joinRoom", async (username,roomID) => {
-            if(!Utilities.checkUserInRoom(rooms,roomID)){
+        socket.on("joinRoom", async (roomID,username) => {
+            if(!Utilities.checkUserInRoom(this.rooms,roomID)){
                 const room = this.rooms[roomID];
                 this.joinRoom(room,socket,username,false);
                 socket.emit("createdRoom", roomID);
@@ -56,10 +57,14 @@ class RoomManager{
         })
 
         socket.on("StartGame", (roomID) =>{
-            let room = rooms[roomID];
+            let room = this.rooms[roomID];
             let players = room.getPlayers();
             io.to(roomID).emit("RoundStart", players);
-            room.onConnection(io,socket);
+        });
+
+        socket.on("gameStart", (roomID) =>{
+            let p = this.rooms[roomID].getPlayers();
+            io.to(roomID).emit("PLAYERS",p);
         });
     }
 

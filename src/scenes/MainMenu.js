@@ -36,6 +36,7 @@ export default class MainMenu extends Phaser.Scene{
                 this.already = true;
             }
         }
+
         this.server.on("createdRoom", (roomID) => {
             if(this.scene.isActive()){
                 let socketID = this.server;

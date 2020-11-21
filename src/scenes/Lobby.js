@@ -27,14 +27,14 @@ export default class Lobby extends Phaser.Scene{
 
     update(){
         this.add.text(640,300, "Room: " + this.roomId, this.font);
-        this.add.text(500,300, "In the room are" + this.players, this.font);
+        this.add.text(500,300, "In the room are" + "\n" + this.players, this.font);
         
         if(this.cursorKeys.space.isDown){
             this.server.emit("isLeader", this.roomId);
             this.server.on("Leader", (host) =>{
-               if(host){    
-                   this.server.emit("StartGame", this.roomId);
-               } 
+                if(host){    
+                    this.server.emit("StartGame", this.roomId);
+                } 
             });
         }
 
@@ -42,15 +42,15 @@ export default class Lobby extends Phaser.Scene{
             this.players = players;
         });
 
-        this.server.on("RoundStart",(players) => {
+        this.server.on("RoundStart",() => {
             if(this.scene.isActive()){
                 let data = {
                     username: this.username,
                     server: this.server,
                     roomID: this.roomId,
-                    host: this.host,
-                    players: players
+                    host: this.host
                 }
+                this.server.emit("SwitchServer", this.roomId);
                 this.scene.start("BallGame",data);
                 this.scene.setActive(false);
                 this.scene.stop("Lobby");

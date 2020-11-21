@@ -16,6 +16,14 @@ class BaseModel{
     getY(){
         return this.y;
     }
+
+    setX(value){
+        this.x = value;
+    }
+
+    setY(value){
+        this.y = value;
+    }
 }
 
 module.exports = BaseModel;

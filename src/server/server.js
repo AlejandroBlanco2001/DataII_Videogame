@@ -10,6 +10,7 @@ const socket = require('socket.io');
 const config = require('../../webpack/base.js');
 const { callbackify } = require('util');
 const { Console } = require('console');
+const Room = require('./models/Room');
 const compiler = webpack(config);
 const PORT = process.env.PORT || 5000;
 
@@ -44,24 +45,6 @@ app.get('*', (req,res) =>{
     res.sendFile(path.join(__dirname,"index.html"));
 })
 
-io
-    .on("connection", (socket) => {
-        
-        RoomManager.onConnection(io,socket);
-
-        /*
-        socket.on("UpdateMe", (data) =>{
-            let room = rooms[data.room];
-            let p = room.getPlayer(socket.id);
-            p.x = data.x;
-            p.y = data.y;
-            p.active = data.state;
-        });
-
-        socket.on("update",(roomID) => {
-            let room = rooms[roomID];
-            let players = room.getPlayers();
-            io.to(roomID).emit("updateGame",players);
-        });
-        */
+io.on("connection", (socket) => {
+    RoomManager.onConnection(io,socket);
 });
