@@ -35,13 +35,14 @@ export default class BallGame extends Phaser.Scene{
                 for(var key in dataPlayers){
                     let p = dataPlayers[key];
                     let user = p.username;
+                    console.log(user);
                     var x = p.x;
                     var y = p.y;
                     if(user == this.username){
                         this.player = new Player(x,y,this,"drake",user,this.server,this.roomID);
                         this.playerObjects[user] = this.player;
                     }else{
-                        let character = new Player(x,y,this,"drake",user,null,this.roomID);
+                        let character = new Player(x,y,this,"drake",user,p.id,this.roomID);
                         this.playerObjects[user] = character;
                     }
                 }
@@ -82,9 +83,11 @@ export default class BallGame extends Phaser.Scene{
             });
 
             // collisions with player and spikeBall
+            /*
             this.physics.add.overlap(p,this.spikeBall, () =>{
                 p.destroy();
             });
+            */
         }
 
         this.physics.add.collider(this.spikeBall,spikeBallLayer, () =>{
@@ -105,8 +108,9 @@ export default class BallGame extends Phaser.Scene{
         this.server.on("UPDATE", (players) => {
             for(var key in players){
                 let pServer = players[key];
-                let coords = pServer.getCoords();
-                this.playerObjects[pServer.getUsername()].updateCoords(coords);
+                let data = {x: pServer.x, y: pServer.y};
+                this.playerObjects[pServer.username].updateCoords(data);
+                console.log("ACTUALIZADO");
             }
         });
     }

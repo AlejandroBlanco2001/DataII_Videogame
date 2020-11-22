@@ -34,11 +34,13 @@ class RoomManager{
             });
         }
         
-        this.update = (roomID) =>{
+        this.update = (roomID,socket,update) =>{
             return new Promise(() => {
                 setTimeout(() => {
-                    let players = this.rooms[roomID].getPlayers();
-                    io.to(roomID).emit("UPDATE",players);
+                    if(update){
+                        let players = this.rooms[roomID].getPlayers();
+                        io.to(roomID).emit("UPDATE",players);
+                    }
                 },600);
             });
         }
@@ -77,8 +79,11 @@ class RoomManager{
         socket.on("POSITION_CHANGE", async (data) => {
             let room = this.rooms[data.roomID];
             let player = room.getPlayer(socket.id);
-            player.updateCoords(data);
-            await this.update(data.roomID);
+            let shouldUpdate = player.checkIncrease(data);
+            if(shouldUpdate){
+                player.updateCoords(data);
+            }
+            await this.update(data.roomID,socket,shouldUpdate);
         });
     }
 
