@@ -1,5 +1,5 @@
 export default class Player extends Phaser.Physics.Arcade.Sprite{
-    constructor(x,y,scene,texture,username,socket){
+    constructor(x,y,scene,texture,username,socket, roomID){
         super(scene,x,y,texture);
 
         // Connect with the scene
@@ -18,12 +18,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
 
         // Server-Side usefull things        
         this.socket = socket;
+        this.roomID = roomID;
 
     }
 
     configAABB(config){
         this.setSize(config.x,config.y).setOffset(config.OffsetX,config.OffsetY);
         this.setCollideWorldBounds(config.bounds);
+    }
+    
+    updateCoords(coords){
+        this.x = coords.x;
+        this.y = coords.y;
     }
 
     update(keyboard){
@@ -44,14 +50,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         }
         let data = {
             x: this.x,
-            y: this.y
+            y: this.y,
+            roomID: this.roomID
         }
-        if(this.socket == null){
+        if(this.socket != null){
             this.socket.emit("POSITION_CHANGE", data);
-            this.socket.on("UPDATE", (data) =>{
-                this.x = data.x;
-                this.y = data.y;
-            });
         }
     } 
 } 

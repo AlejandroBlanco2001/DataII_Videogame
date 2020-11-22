@@ -50,7 +50,6 @@ export default class Lobby extends Phaser.Scene{
                     roomID: this.roomId,
                     host: this.host
                 }
-                this.server.emit("SwitchServer", this.roomId);
                 this.scene.start("BallGame",data);
                 this.scene.setActive(false);
                 this.scene.stop("Lobby");

@@ -27,9 +27,9 @@ class Room{
         return this.id;
     }
 
-    addPlayer(player){
+    addPlayer(player,socket){
         if(player != null){
-            this.sockets[player.socket] = player;
+            this.sockets[socket] = player;
         }
     }
 

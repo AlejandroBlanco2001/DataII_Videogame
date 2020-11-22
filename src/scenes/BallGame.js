@@ -22,7 +22,7 @@ export default class BallGame extends Phaser.Scene{
 
 
     preload(){
-        
+        var notDuplicate = false;
         this.load.spritesheet("drake", "src/assets/images/SpriteSheets/blue.png",{framHeight: 24, frameWidth: 24});
         this.load.image("spike","src/assets/images/Statics/spikeBall.png");
 
@@ -31,19 +31,22 @@ export default class BallGame extends Phaser.Scene{
 
         this.server.emit("gameStart", this.roomID);
         this.server.on("PLAYERS", (dataPlayers) => {
-            for(var key in dataPlayers){
-                let p = dataPlayers[key];
-                let user = p.username;
-                var x = p.x;
-                var y = p.y;
-                if(user == this.username){
-                    this.player = new Player(x,y,this,"drake",user,this.server);
-                    this.playerObjects[user] = this.player;
-                }else{
-                    let character = new Player(x,y,this,"drake",user,null);
-                    this.playerObjects[user] = character;
+            if(!notDuplicate){
+                for(var key in dataPlayers){
+                    let p = dataPlayers[key];
+                    let user = p.username;
+                    var x = p.x;
+                    var y = p.y;
+                    if(user == this.username){
+                        this.player = new Player(x,y,this,"drake",user,this.server,this.roomID);
+                        this.playerObjects[user] = this.player;
+                    }else{
+                        let character = new Player(x,y,this,"drake",user,null,this.roomID);
+                        this.playerObjects[user] = character;
+                    }
                 }
             }
+            notDuplicate = true;
         });        
     }
 
@@ -99,7 +102,12 @@ export default class BallGame extends Phaser.Scene{
                 this.player.update(this.keyboard);
             }
         }
+        this.server.on("UPDATE", (players) => {
+            for(var key in players){
+                let pServer = players[key];
+                let coords = pServer.getCoords();
+                this.playerObjects[pServer.getUsername()].updateCoords(coords);
+            }
+        });
     }
-
-
 }

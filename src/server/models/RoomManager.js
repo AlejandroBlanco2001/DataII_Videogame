@@ -11,7 +11,7 @@ class RoomManager{
     static joinRoom(room,socket,username,host){
         let pos = Utilities.getRandomRespawn();
         let p = new Player(socket.id,pos,host,username);
-        room.addPlayer(p);
+        room.addPlayer(p,socket.id);
         socket.join(room.getID(), () =>{
             socket.roomId = room.getID();
             console.log(socket.id, "Joined", room.getID());
@@ -32,8 +32,17 @@ class RoomManager{
                     io.to(room.getID()).emit("RefreshLobby",names);
                 }, 200);
             });
-        };
+        }
         
+        this.update = (roomID) =>{
+            return new Promise(() => {
+                setTimeout(() => {
+                    let players = this.rooms[roomID].getPlayers();
+                    io.to(roomID).emit("UPDATE",players);
+                },600);
+            });
+        }
+
         socket.on("createRoom", async (username) =>{
             let id = Utilities.generateRandomID();
             let r = new Room(id,socket.id,false);
@@ -54,17 +63,22 @@ class RoomManager{
     
         socket.on("isLeader", (roomID) => {
             socket.emit("Leader",this.rooms[roomID].host == socket.id);
-        })
+        });
 
-        socket.on("StartGame", (roomID) =>{
-            let room = this.rooms[roomID];
-            let players = room.getPlayers();
-            io.to(roomID).emit("RoundStart", players);
+        socket.on("StartGame", (roomID) => {
+            io.to(roomID).emit("RoundStart");
         });
 
         socket.on("gameStart", (roomID) =>{
             let p = this.rooms[roomID].getPlayers();
             io.to(roomID).emit("PLAYERS",p);
+        });
+
+        socket.on("POSITION_CHANGE", async (data) => {
+            let room = this.rooms[data.roomID];
+            let player = room.getPlayer(socket.id);
+            player.updateCoords(data);
+            await this.update(data.roomID);
         });
     }
 

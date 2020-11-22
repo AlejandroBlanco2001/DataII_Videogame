@@ -24,6 +24,14 @@ class BaseModel{
     setY(value){
         this.y = value;
     }
+
+    getCoords(){
+        let data = {
+            x: this.x,
+            y: this.y
+        }
+        return data;
+    }
 }
 
 module.exports = BaseModel;
