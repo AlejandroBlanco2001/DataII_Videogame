@@ -23,11 +23,17 @@ export default class BallGame extends Phaser.Scene{
 
     preload(){
         var notDuplicate = false;
+        
+        // images 
         this.load.spritesheet("drake", "src/assets/images/SpriteSheets/blue.png",{framHeight: 24, frameWidth: 24});
         this.load.image("spike","src/assets/images/Statics/spikeBall.png");
 
         this.load.image("terrain", "src/assets/images/sci-fi-tileset.png");
         this.load.tilemapTiledJSON("spikeBallMap","src/assets/map/spikeBallMap.json");
+
+        // sounds
+        this.load.audio("die", "src/assets/sounds/diePlayer.ogg", "src/assets/sounds/diePlayer.mp3");
+        this.load.audio("crash", "src/assets/sounds/impactWall.ogg", "src/assets/sounds/impactWall.mp3");
 
         this.server.emit("gameStart", this.roomID);
         this.server.on("PLAYERS", (dataPlayers) => {
@@ -59,11 +65,19 @@ export default class BallGame extends Phaser.Scene{
         this.terrain = spikeBallMap.addTilesetImage("sci-fi-tileset","terrain");
         this.spikeBall = new SpikeBall(this,600,400,"spike");
 
+        // sounds 
+
+        this.dieSound = this.sound.add("die");
+        this.crashSound = this.sound.add("crash");
+
+        // music
+
         // layers 
         let topLayer = spikeBallMap.createStaticLayer("bot", [this.terrain], 0, 0).setDepth(-1);
         let botLayer = spikeBallMap.createStaticLayer("top", [this.terrain], 0, 0);
         let spikeBallLayer = spikeBallMap.createStaticLayer("BoxPattern",[this.terrain], 0, 0).setDepth(-2);
         
+        // set texture to player because server loading 
         this.player.setTexture("drake");
 
         //map collisions with Player and SpikeBall
@@ -83,20 +97,30 @@ export default class BallGame extends Phaser.Scene{
             });
 
             // collisions with player and spikeBall
-            /*
             this.physics.add.overlap(p,this.spikeBall, () =>{
-                p.destroy();
+                //p.destroy();
+                //this.dieSound.play();
             });
-            */
         }
 
         this.physics.add.collider(this.spikeBall,spikeBallLayer, () =>{
             this.spikeBall.faster();
+            this.crashSound.play();
         });
 
         spikeBallLayer.setCollisionByProperty({
             hitByBall: true
         })
+
+
+
+        this.server.on("UPDATE", (players) => {
+            for(var key in players){
+                let pServer = players[key];
+                let data = {room: this.roomID, x: pServer.x, y: pServer.y};
+                this.playerObjects[pServer.username].updateCoords(data);
+            }
+        });
     }
 
     update(){
@@ -105,13 +129,5 @@ export default class BallGame extends Phaser.Scene{
                 this.player.update(this.keyboard);
             }
         }
-        this.server.on("UPDATE", (players) => {
-            for(var key in players){
-                let pServer = players[key];
-                let data = {x: pServer.x, y: pServer.y};
-                this.playerObjects[pServer.username].updateCoords(data);
-                console.log("ACTUALIZADO");
-            }
-        });
     }
 }

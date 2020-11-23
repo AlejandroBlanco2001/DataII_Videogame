@@ -12,7 +12,7 @@ export default class Lobby extends Phaser.Scene{
     }
 
     preload(){
-      
+        this.load.audio("waitMusic", "src/assets/music/lobbyWait.ogg","src/assets/music/lobbyWait.mp3");
     }
 
     create(){
@@ -21,8 +21,17 @@ export default class Lobby extends Phaser.Scene{
             fontFamily : "Georgia"
         }
         this.players = "";
-        this.already = false;
         this.cursorKeys = this.input.keyboard.createCursorKeys();
+
+        let musicConfig = {
+            mute: false,
+            volume: 0.5,
+            loop: true,
+            delay: 0
+        }
+
+        this.music = this.sound.add("waitMusic");
+        this.music.play(musicConfig);
     }
 
     update(){
@@ -50,6 +59,7 @@ export default class Lobby extends Phaser.Scene{
                     roomID: this.roomId,
                     host: this.host
                 }
+                this.music.stop();
                 this.scene.start("BallGame",data);
                 this.scene.setActive(false);
                 this.scene.stop("Lobby");

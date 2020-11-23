@@ -4,4 +4,11 @@ export default class PreRound extends Phaser.Scene{
             key: "PreRound"
         });
     }
+
+    preload(){
+
+    }
+
+    create(){
+    }
 }

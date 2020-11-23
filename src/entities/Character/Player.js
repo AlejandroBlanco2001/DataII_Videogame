@@ -19,7 +19,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         // Server-Side usefull things        
         this.socket = socket;
         this.roomID = roomID;
-
+        this.oldPositions = {
+            x : this.x,
+            y : this.y
+        };
     }
 
     configAABB(config){
@@ -33,33 +36,36 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
     }
 
     update(keyboard){
-        var moving = false;
-        let data = {
-            x: this.x,
-            y: this.y,
-            roomID: this.roomID
-        }
+        var data;
         if(keyboard.D.isDown){
             this.setVelocityX(124);
-            moving = true;
+            data = {room: this.roomID, x: this.x, y: this.y}
+            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y))
+                this.socket.emit("POSITION_CHANGE",data);
         }
         if(keyboard.A.isDown){
             this.setVelocityX(-124);
-            moving = true;
-        }
-        if(keyboard.S.isDown){
-            this.setVelocityY(64);
-            moving = true;
+            data = {room: this.roomID, x: this.x, y: this.y}
+            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y))
+                this.socket.emit("POSITION_CHANGE",data);
         }
         if(keyboard.W.isDown && this.body.blocked.down){  
             this.setVelocityY(-200);
-            moving = true;
+            data = {room: this.roomID, x: this.x, y: this.y}
+            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y))
+                this.socket.emit("POSITION_CHANGE",data);
         }   
+        if(!this.body.blocked.down){
+            data = {room: this.roomID, x: this.x, y: this.y}
+            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y))
+                this.socket.emit("POSITION_CHANGE",data);
+        }
         if(keyboard.A.isUp && keyboard.D.isUp){ // Not moving x 
             this.setVelocityX(0); 
         }
-        if(moving){
-            this.socket.emit("POSITION_CHANGE",data);
+        this.oldPositions = {
+            x: this.x,
+            y: this.y
         }
     } 
 } 
