@@ -19,7 +19,7 @@ class RoomManager{
     }
 
     static onConnection(io,socket){
-        let rooms = {}; 
+
         /**
          * Metodo que se encarga de manera asincronica mandar el listado de jugadores por sala
          * @param {String} roomId 
@@ -80,7 +80,6 @@ class RoomManager{
         socket.on("gameStart", (roomID) =>{
             let p = this.rooms[roomID].getPlayers();
             let s = this.rooms[roomID].getSpike();
-            console.log(s);
             let data = {
                 x: s.getX(),
                 y: s.getY()

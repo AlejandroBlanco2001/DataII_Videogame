@@ -9,6 +9,7 @@ export default class BallGame extends Phaser.Scene{
         });
         this.player;
         this.playerObjects = {};
+        this.lastDead;
         this.spikeBall;
         this.updateT = false;
     }
@@ -82,8 +83,6 @@ export default class BallGame extends Phaser.Scene{
         this.dieSound = this.sound.add("die");
         this.crashSound = this.sound.add("crash");
 
-        // music
-
         // layers 
         let topLayer = spikeBallMap.createStaticLayer("bot", [this.terrain], 0, 0).setDepth(-1);
         let botLayer = spikeBallMap.createStaticLayer("top", [this.terrain], 0, 0);
@@ -92,6 +91,7 @@ export default class BallGame extends Phaser.Scene{
         // set texture to player because server loading 
         this.player.setTexture("drake");
         this.spikeBall.setTexture("spike");
+
         //map collisions with Player and SpikeBall
         for(var key in this.playerObjects){
             this.playerObjects[key].setTexture("drake");
@@ -109,6 +109,7 @@ export default class BallGame extends Phaser.Scene{
 
             // collisions with player and spikeBall
             this.physics.add.overlap(p,this.spikeBall, () =>{
+                this.lastDead = p.getUsername();
                 p.destroy();
                 this.dieSound.play();
             });

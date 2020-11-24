@@ -25,6 +25,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         };
     }
 
+    getUsername(){
+        return this.username;
+    }
+
     configAABB(config){
         this.setSize(config.x,config.y).setOffset(config.OffsetX,config.OffsetY);
         this.setCollideWorldBounds(config.bounds);

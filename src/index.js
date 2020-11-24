@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import MainMenu from "./scenes/MainMenu";
 import Lobby from "./scenes/Lobby";
 import BallGame from "./scenes/BallGame";
+import BallGameUI from "./scenes/BallGameUI";
 
 const config = {
   type: Phaser.AUTO,
@@ -10,7 +11,8 @@ const config = {
   scene: [
     MainMenu,
     Lobby,
-    BallGame
+    BallGame,
+    BallGameUI
   ],
   physics: {
     default: 'arcade',

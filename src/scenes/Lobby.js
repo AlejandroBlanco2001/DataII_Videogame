@@ -60,6 +60,7 @@ export default class Lobby extends Phaser.Scene{
                 }
                 this.music.stop();
                 this.scene.start("BallGame",data);
+                this.scene.start("BallGameUI");
                 this.scene.setActive(false);
                 this.scene.stop("Lobby");
             }
