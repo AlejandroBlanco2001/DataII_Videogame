@@ -38,10 +38,14 @@ class RoomManager{
             return new Promise(() => {
                 setTimeout(() => {
                     let players = this.rooms[roomID].getPlayers();
-                    let spike = this.rooms[roomID].getSpike();
-                    io.to(roomID).emit("UPDATE",(players,spike));
+                    io.to(roomID).emit("UPDATE",players);
                 },1000);
             });
+        }
+
+        this.updateSpike = (roomID) =>{
+            let spike = this.rooms[roomID].getSpike();
+            io.to(roomID).emit("SPIKE_UPDATE",spike);
         }
 
 
@@ -91,10 +95,10 @@ class RoomManager{
             await this.update(data.room);
         });
 
-        socket.on("UPDATE_SPIKE", async (data) => {
-            let room = this.rooms[data.r];
+        socket.on("UPDATE_SPIKE", (data) => {
+            let room = this.rooms[data.roomID];
             room.getSpike().updateCoords(data);
-            await this.update(data.r);
+            this.updateSpike(data.roomID);
         });
 
         socket.on("GAME_OVER", (roomID) => {

@@ -73,7 +73,6 @@ export default class BallGame extends Phaser.Scene{
     }
 
     create(){            
-        var onlyOneTime = false;
         this.keyboard = this.input.keyboard.addKeys("W, A, S, D");
 
         let spikeBallMap = this.add.tilemap("spikeBallMap");
@@ -92,7 +91,7 @@ export default class BallGame extends Phaser.Scene{
         
         // set texture to player because server loading 
         this.player.setTexture("drake");
-
+        this.spikeBall.setTexture("spike");
         //map collisions with Player and SpikeBall
         for(var key in this.playerObjects){
             this.playerObjects[key].setTexture("drake");
@@ -110,8 +109,8 @@ export default class BallGame extends Phaser.Scene{
 
             // collisions with player and spikeBall
             this.physics.add.overlap(p,this.spikeBall, () =>{
-                //p.destroy();
-                //this.dieSound.play();
+                p.destroy();
+                this.dieSound.play();
             });
 
             this.physics.add.collider(this.spikeBall,spikeBallLayer, () =>{
@@ -131,26 +130,34 @@ export default class BallGame extends Phaser.Scene{
                 this.playerObjects[pServer.username].updateCoords(data);
             }
         });
+
+        this.server.on("SPIKE_UPDATE", spike => {
+            if(spike != null){
+                let data = {x: spike.x, y: spike.y};
+                this.spikeBall.updateCoords(data);
+            }
+        })
     }
 
     update(){
-        if(this.player != null){
-            if(this.player.active){
-                this.player.update(this.keyboard);
-            }
+        if(this.player.active){
+            this.player.update(this.keyboard);
         }
+        
         if(this.gameOver()){
             this.server.emit("GAME_OVER",this.roomID);
         }
+        
         setInterval(() =>{
-            if(this.spikeBall.updatePos() !== false){
+            if(this.spikeBall.updatePos() != false){
+                let data = this.spikeBall.getNewPos();
                 let roomID = this.roomID;
                 let r = "roomID";
-                let data = this.spikeBall.updatePos();
                 data[r] = roomID;
                 this.server.emit("UPDATE_SPIKE",data)
             }
         },100);
+
         this.server.on("LOBBY", () => {
             if(this.scene.isActive()){
                 let data = {

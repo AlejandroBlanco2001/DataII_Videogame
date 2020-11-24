@@ -15,10 +15,20 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
         this.body.bounce.set(1);
 
         // Server side usefull things 
-        this.oldPosition = {
+        this.oldPositions = {
             x: this.x,
             y: this.y
         }
+        this.newPos;
+    }
+
+    updateCoords(data){
+        this.x = data.x;
+        this.y = data.y;
+    }
+
+    getNewPos(){
+        return this.newPos;
     }
 
     faster(){
@@ -32,11 +42,12 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
     updatePos(){
         var data = {x: this.x, y: this.y}
         if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y)){
+            this.newPos = data;
             this.oldPositions = {
                 x: this.x,
                 y: this.y
             }
-            return data;            
+            return true;            
         }else{
             return false;
         }
