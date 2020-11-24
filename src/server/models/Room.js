@@ -3,7 +3,17 @@ class Room{
         this.id = id;
         this.host = host;
         this.playing = state;
+        this.spike;
         this.sockets = {};
+    }
+
+    addSpike(spike){
+        console.log(spike);
+        this.spike = spike; 
+    }
+
+    getSpike(){
+        return this.spike;
     }
 
     updatePlayers(socket,data){

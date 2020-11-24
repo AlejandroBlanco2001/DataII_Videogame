@@ -28,13 +28,13 @@ export default class MainMenu extends Phaser.Scene{
 
         let musicConfig = {
             mute: false,
-            volume: 0.7,
+            volume: 0.5,
             loop: true,
             delay: 0
         }
 
         this.musicMenu = this.sound.add("music");
-        //this.musicMenu.play(musicConfig);
+        this.musicMenu.play(musicConfig);
     }
 
     update(){

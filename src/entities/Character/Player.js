@@ -39,33 +39,27 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         var data;
         if(keyboard.D.isDown){
             this.setVelocityX(124);
-            data = {room: this.roomID, x: this.x, y: this.y}
-            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y))
-                this.socket.emit("POSITION_CHANGE",data);
         }
         if(keyboard.A.isDown){
             this.setVelocityX(-124);
-            data = {room: this.roomID, x: this.x, y: this.y}
-            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y))
-                this.socket.emit("POSITION_CHANGE",data);
         }
         if(keyboard.W.isDown && this.body.blocked.down){  
             this.setVelocityY(-200);
-            data = {room: this.roomID, x: this.x, y: this.y}
-            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y))
-                this.socket.emit("POSITION_CHANGE",data);
         }   
-        if(!this.body.blocked.down){
-            data = {room: this.roomID, x: this.x, y: this.y}
-            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y))
-                this.socket.emit("POSITION_CHANGE",data);
+        if(!this.body.touching.down){
         }
         if(keyboard.A.isUp && keyboard.D.isUp){ // Not moving x 
             this.setVelocityX(0); 
         }
-        this.oldPositions = {
-            x: this.x,
-            y: this.y
-        }
+        setInterval(() =>{
+            data = {room: this.roomID, x: this.x, y: this.y}
+            if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y)){
+                this.socket.emit("POSITION_CHANGE",data);
+                this.oldPositions = {
+                    x: this.x,
+                    y: this.y
+                }
+            }
+        },100);
     } 
 } 

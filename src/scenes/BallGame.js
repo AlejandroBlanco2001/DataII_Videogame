@@ -20,9 +20,20 @@ export default class BallGame extends Phaser.Scene{
         this.host = data.host;
     }
 
+    gameOver(){
+        for(var key in this.playerObjects){
+            let Player = this.playerObjects[key];
+            if(Player.active){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     preload(){
         var notDuplicate = false;
+        var onlyOneTime = false;
         
         // images 
         this.load.spritesheet("drake", "src/assets/images/SpriteSheets/blue.png",{framHeight: 24, frameWidth: 24});
@@ -36,7 +47,7 @@ export default class BallGame extends Phaser.Scene{
         this.load.audio("crash", "src/assets/sounds/impactWall.ogg", "src/assets/sounds/impactWall.mp3");
 
         this.server.emit("gameStart", this.roomID);
-        this.server.on("PLAYERS", (dataPlayers) => {
+        this.server.on("PLAYERS", (dataPlayers, spikeRoom) => {
             if(!notDuplicate){
                 for(var key in dataPlayers){
                     let p = dataPlayers[key];
@@ -52,19 +63,21 @@ export default class BallGame extends Phaser.Scene{
                         this.playerObjects[user] = character;
                     }
                 }
+                if(!onlyOneTime){
+                    this.spikeBall = new SpikeBall(this,spikeRoom.x,spikeRoom.y,"spike");
+                    onlyOneTime = true;
+                }
             }
             notDuplicate = true;
         });        
     }
 
     create(){            
-
+        var onlyOneTime = false;
         this.keyboard = this.input.keyboard.addKeys("W, A, S, D");
 
         let spikeBallMap = this.add.tilemap("spikeBallMap");
         this.terrain = spikeBallMap.addTilesetImage("sci-fi-tileset","terrain");
-        this.spikeBall = new SpikeBall(this,600,400,"spike");
-
         // sounds 
 
         this.dieSound = this.sound.add("die");
@@ -82,7 +95,6 @@ export default class BallGame extends Phaser.Scene{
 
         //map collisions with Player and SpikeBall
         for(var key in this.playerObjects){
-
             this.playerObjects[key].setTexture("drake");
             let p = this.playerObjects[key];
             
@@ -101,18 +113,16 @@ export default class BallGame extends Phaser.Scene{
                 //p.destroy();
                 //this.dieSound.play();
             });
+
+            this.physics.add.collider(this.spikeBall,spikeBallLayer, () =>{
+                this.spikeBall.faster();
+                this.crashSound.play();
+            });
+    
+            spikeBallLayer.setCollisionByProperty({
+                hitByBall: true
+            })        
         }
-
-        this.physics.add.collider(this.spikeBall,spikeBallLayer, () =>{
-            this.spikeBall.faster();
-            this.crashSound.play();
-        });
-
-        spikeBallLayer.setCollisionByProperty({
-            hitByBall: true
-        })
-
-
 
         this.server.on("UPDATE", (players) => {
             for(var key in players){
@@ -129,5 +139,29 @@ export default class BallGame extends Phaser.Scene{
                 this.player.update(this.keyboard);
             }
         }
+        if(this.gameOver()){
+            this.server.emit("GAME_OVER",this.roomID);
+        }
+        setInterval(() =>{
+            if(this.spikeBall.updatePos() !== false){
+                let roomID = this.roomID;
+                let r = "roomID";
+                let data = this.spikeBall.updatePos();
+                data[r] = roomID;
+                this.server.emit("UPDATE_SPIKE",data)
+            }
+        },100);
+        this.server.on("LOBBY", () => {
+            if(this.scene.isActive()){
+                let data = {
+                    id: this.roomID,
+                    socket: this.server,
+                    username: this.username
+                }
+                this.scene.start("Lobby",data);
+                this.scene.setActive(false);
+                this.scene.stop("BallGame");
+            }
+        });
     }
 }

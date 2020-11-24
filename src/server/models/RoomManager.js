@@ -1,7 +1,7 @@
 const Room = require("../models/Room");
 const Utilities = require("../utils");
 const Player =  require("../models/Player");
-
+const Spike = require("../models/Spike");
 
 class RoomManager{
 
@@ -30,7 +30,7 @@ class RoomManager{
                     let room = this.rooms[roomId];
                     let names = room.namesPlayer();
                     io.to(room.getID()).emit("RefreshLobby",names);
-                }, 1000);
+                }, 100);
             });
         }
 
@@ -38,10 +38,12 @@ class RoomManager{
             return new Promise(() => {
                 setTimeout(() => {
                     let players = this.rooms[roomID].getPlayers();
-                    io.to(roomID).emit("UPDATE",players);
-                },33);
+                    let spike = this.rooms[roomID].getSpike();
+                    io.to(roomID).emit("UPDATE",(players,spike));
+                },1000);
             });
         }
+
 
         socket.on("createRoom", async (username) =>{
             let id = Utilities.generateRandomID();
@@ -66,22 +68,40 @@ class RoomManager{
         });
 
         socket.on("StartGame", (roomID) => {
+            this.rooms[roomID].addSpike(new Spike("Spike",600,400));
             this.rooms[roomID].playing = true;
             io.to(roomID).emit("RoundStart");
         });
 
         socket.on("gameStart", (roomID) =>{
             let p = this.rooms[roomID].getPlayers();
-            io.to(roomID).emit("PLAYERS",p);
+            let s = this.rooms[roomID].getSpike();
+            console.log(s);
+            let data = {
+                x: s.getX(),
+                y: s.getY()
+            }
+            io.to(roomID).emit("PLAYERS",p,data);
         });
 
         socket.on("POSITION_CHANGE", async (data) => {
-            console.log("CHANGE");
             let room = this.rooms[data.room];
             let player = room.getPlayer(socket.id);
             player.updateCoords(data);
-            await this.update(data.room,socket);
+            await this.update(data.room);
         });
+
+        socket.on("UPDATE_SPIKE", async (data) => {
+            let room = this.rooms[data.r];
+            room.getSpike().updateCoords(data);
+            await this.update(data.r);
+        });
+
+        socket.on("GAME_OVER", (roomID) => {
+            this.rooms[roomID].playing = false;
+            io.to(roomID).emit("LOBBY");
+        });
+
     }
 
     getRooms(){

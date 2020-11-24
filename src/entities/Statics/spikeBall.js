@@ -12,8 +12,13 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
 
         this.setScale(0.2);
         this.body.setCircle(190);
-
         this.body.bounce.set(1);
+
+        // Server side usefull things 
+        this.oldPosition = {
+            x: this.x,
+            y: this.y
+        }
     }
 
     faster(){
@@ -22,5 +27,18 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
         }
         this.setVelocityX(this.body.velocity.x + 40);
         this.setVelocityY(this.body.velocity.y - 40);
+    }
+
+    updatePos(){
+        var data = {x: this.x, y: this.y}
+        if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y)){
+            this.oldPositions = {
+                x: this.x,
+                y: this.y
+            }
+            return data;            
+        }else{
+            return false;
+        }
     }
 }

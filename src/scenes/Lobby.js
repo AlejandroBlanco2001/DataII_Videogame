@@ -16,7 +16,6 @@ export default class Lobby extends Phaser.Scene{
     }
 
     create(){
-        console.log("LOBBY");
         this.font = {
             fontFamily : "Georgia"
         }
