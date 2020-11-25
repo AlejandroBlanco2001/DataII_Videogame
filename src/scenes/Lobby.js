@@ -31,6 +31,11 @@ export default class Lobby extends Phaser.Scene{
 
         this.music = this.sound.add("waitMusic");
         this.music.play(musicConfig);
+
+        this.server.on("RefreshLobby", (players) => {
+            console.log(players);
+            this.players = players;
+        });
     }
 
     update(){
@@ -45,10 +50,6 @@ export default class Lobby extends Phaser.Scene{
                 } 
             });
         }
-
-        this.server.on("RefreshLobby", (players) => {
-            this.players = players;
-        });
 
         this.server.on("RoundStart",() => {
             if(this.scene.isActive()){

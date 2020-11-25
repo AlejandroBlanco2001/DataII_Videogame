@@ -32,17 +32,25 @@ app.use(webpackDevMiddleware(compiler,{
     publicPath: config.output.publicPath,
 }));
 
-
+/**
+ * Servidor de HTTP que escucha la ventana
+ */
 const server = app.listen(PORT, () =>{
     console.log("Listening on " + PORT);
 })
 
 const io = socket(server);
 
+/**
+ * Metodo que devuelve el HTML del juego
+ */
 app.get('*', (req,res) =>{
     res.sendFile(path.join(__dirname,"index.html"));
 })
 
+/**
+ * Metodo que se encarga de tomar las conexiones de los clientes
+ */
 io.on("connection", (socket) => {
     RoomManager.onConnection(io,socket);
 });

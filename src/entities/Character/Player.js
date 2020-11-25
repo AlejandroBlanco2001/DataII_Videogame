@@ -1,4 +1,14 @@
 export default class Player extends Phaser.Physics.Arcade.Sprite{
+    /**
+     * Constructor
+     * @param {number} x Coordenada en X 
+     * @param {number} y Coordenada en Y
+     * @param {Phaser.Scene} scene Escena del juego
+     * @param {string} texture Textura del jugador 
+     * @param {string} username Nombre del jugador 
+     * @param {Socket} socket Socket del jugador 
+     * @param {string} roomID ID de la sala del jugador
+     */
     constructor(x,y,scene,texture,username,socket, roomID){
         super(scene,x,y,texture);
 
@@ -13,9 +23,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         this.setSize(15,15).setOffset(5,5);
         this.setCollideWorldBounds(true);  
 
-        // Debug parameters
-
-
         // Server-Side usefull things        
         this.socket = socket;
         this.roomID = roomID;
@@ -25,20 +32,35 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         };
     }
 
+    /**
+     * Metodo que devuelve el nombre del usuario
+     */
     getUsername(){
         return this.username;
     }
 
+    /**
+     * Metodo que se encarga de verificar la caja AABB de colisiones
+     * @param {JSON} config 
+     */
     configAABB(config){
         this.setSize(config.x,config.y).setOffset(config.OffsetX,config.OffsetY);
         this.setCollideWorldBounds(config.bounds);
     }
     
+    /**
+     * Metodo que se encarga de actualizar los datos de las coordenadas del jugador
+     * @param {JSON} coords 
+     */
     updateCoords(coords){
         this.x = coords.x;
         this.y = coords.y;
     }
 
+    /**
+     * Metodo que se encarga de llamarse periodicamente para el movimiento del juego
+     * @param {Phaser.Input.keyboard} keyboard 
+     */
     update(keyboard){
         var data;
         if(keyboard.D.isDown){
@@ -55,6 +77,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         if(keyboard.A.isUp && keyboard.D.isUp){ // Not moving x 
             this.setVelocityX(0); 
         }
+        /**
+         * Llamada periodica cada 0.40 segundos para actualizar la posicion del jugador
+         */
         setInterval(() =>{
             data = {room: this.roomID, x: this.x, y: this.y}
             if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y)){
@@ -64,6 +89,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
                     y: this.y
                 }
             }
-        },100);
+        },400);
     } 
 } 

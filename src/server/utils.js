@@ -1,6 +1,9 @@
 var const_namespaces_rooms = [];
 const MAX_ROOMS = 8;
 var AVAILABLE_ROOM = 0;
+/**
+ * Posibles posiciones de Respawn
+ */
 const posibleRespawnPoints = [{x:256,y:627,respawn:false},
     {x:494,y:577,respawn:false},{x:640,y:577,respawn:false},
     {x:861,y:627,respawn:false},{x:868,y:341,respawn:false},

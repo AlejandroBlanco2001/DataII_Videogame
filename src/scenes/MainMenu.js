@@ -1,5 +1,7 @@
 import io from 'socket.io-client';
-
+/**
+ * Representacion del Menu
+ */
 export default class MainMenu extends Phaser.Scene{
     constructor(){
         super({

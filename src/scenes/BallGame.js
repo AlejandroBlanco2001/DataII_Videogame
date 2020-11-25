@@ -1,6 +1,8 @@
 import Player from "../entities/Character/Player";
 import SpikeBall from "../entities/Statics/spikeBall";
-
+/**
+ * Representacion del Front End del juego
+ */
 export default class BallGame extends Phaser.Scene{
     constructor(){
         super({
@@ -21,6 +23,9 @@ export default class BallGame extends Phaser.Scene{
         this.host = data.host;
     }
 
+    /**
+     * Metodo que se encarga de verificar si el juego ha finalizado
+     */
     gameOver(){
         for(var key in this.playerObjects){
             let Player = this.playerObjects[key];
@@ -48,6 +53,7 @@ export default class BallGame extends Phaser.Scene{
         this.load.audio("crash", "src/assets/sounds/impactWall.ogg", "src/assets/sounds/impactWall.mp3");
 
         this.server.emit("gameStart", this.roomID);
+        // Se encarga de crear los jugadores recibidos por el servidor
         this.server.on("PLAYERS", (dataPlayers, spikeRoom) => {
             if(!notDuplicate){
                 for(var key in dataPlayers){
@@ -78,8 +84,8 @@ export default class BallGame extends Phaser.Scene{
 
         let spikeBallMap = this.add.tilemap("spikeBallMap");
         this.terrain = spikeBallMap.addTilesetImage("sci-fi-tileset","terrain");
-        // sounds 
 
+        // sounds 
         this.dieSound = this.sound.add("die");
         this.crashSound = this.sound.add("crash");
 
@@ -124,6 +130,7 @@ export default class BallGame extends Phaser.Scene{
             })        
         }
 
+        // Metodo que se encarga de actualizar las posiciones del jugador 
         this.server.on("UPDATE", (players) => {
             for(var key in players){
                 let pServer = players[key];
@@ -132,6 +139,7 @@ export default class BallGame extends Phaser.Scene{
             }
         });
 
+        // Metodo que se encarga de actualizar la posicion de la spike
         this.server.on("SPIKE_UPDATE", spike => {
             if(spike != null){
                 let data = {x: spike.x, y: spike.y};
@@ -149,6 +157,7 @@ export default class BallGame extends Phaser.Scene{
             this.server.emit("GAME_OVER",this.roomID);
         }
         
+        // Intervalo que se encarga de actualizar periodicamente cada 0.01 segundos la posicion de la spike
         setInterval(() =>{
             if(this.spikeBall.updatePos() != false){
                 let data = this.spikeBall.getNewPos();
@@ -159,6 +168,7 @@ export default class BallGame extends Phaser.Scene{
             }
         },100);
 
+        // Se encarga de dar por terminada por la partida y devolver al Lobby
         this.server.on("LOBBY", () => {
             if(this.scene.isActive()){
                 let data = {

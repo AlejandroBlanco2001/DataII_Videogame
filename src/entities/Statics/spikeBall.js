@@ -1,4 +1,14 @@
+/**
+ * Representacion de la Spike
+ */
 export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
+    /**
+     * Constructor
+     * @param {Phaser.Scene} scene Escena en la que se encuentra 
+     * @param {number} x Coordenada en X
+     * @param {number} y Coordenada en Y
+     * @param {string} texture Textura del sprite  
+     */
     constructor(scene,x,y,texture){
         super(scene,x,y,texture);
         scene.sys.updateList.add(this);
@@ -9,7 +19,6 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
 
         // AABB and Size
         this.setCollideWorldBounds(true); 
-
         this.setScale(0.2);
         this.body.setCircle(190);
         this.body.bounce.set(1);
@@ -22,15 +31,25 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
         this.newPos;
     }
 
+    /**
+     * Metodo que se encarga de actualizar
+     * @param {JSON} data Coordenadas del jugador 
+     */
     updateCoords(data){
         this.x = data.x;
         this.y = data.y;
     }
 
+    /**
+     * Metodo que se encarga de obtener las nuevas posiciones
+     */
     getNewPos(){
         return this.newPos;
     }
 
+    /**
+     * Metodo que se encarga de incrementar la velocidad angular y tangencial de la pelota
+     */
     faster(){
         if(this.body.angularVelocity <= 800){
             this.body.angularVelocity += 200;
@@ -39,6 +58,9 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
         this.setVelocityY(this.body.velocity.y - 40);
     }
 
+    /**
+     * Metodo que se encarga de actualizar las coordenadas de la Spike
+     */
     updatePos(){
         var data = {x: this.x, y: this.y}
         if(this.oldPositions && (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y)){
