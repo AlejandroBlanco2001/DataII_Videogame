@@ -47,8 +47,10 @@ export default class BallGame extends Phaser.Scene{
         var skinName = this.skin;
         
         // images 
-        this.load.spritesheet("drake", "src/assets/images/SpriteSheets/"+skinName+".png",{framHeight: 10, frameWidth: 18});
+        this.load.spritesheet("drake", "src/assets/images/SpriteSheets/"+skinName+".png", {frameWidth: 24, frameHeight: 24});
         this.load.image("spike","src/assets/images/Statics/spikeBall.png");
+
+        this.textures.addSpriteSheetFromAtlas();
 
         this.load.image("terrain", "src/assets/images/sci-fi-tileset.png");
         this.load.tilemapTiledJSON("spikeBallMap","src/assets/map/spikeBallMap.json");
@@ -68,10 +70,10 @@ export default class BallGame extends Phaser.Scene{
                     var x = p.x;
                     var y = p.y;
                     if(user == this.username){
-                        this.player = new Player(x,y,this,"drake",user,this.server,this.roomID,13);
+                        this.player = new Player(x,y,this,"drake",user,this.server,this.roomID,0);
                         this.playerObjects[user] = this.player;
                     }else{
-                        let character = new Player(x,y,this,"drake",user,p.id,this.roomID,13);
+                        let character = new Player(x,y,this,"drake",user,p.id,this.roomID,0);
                         this.playerObjects[user] = character;
                     }
                 }
@@ -100,11 +102,12 @@ export default class BallGame extends Phaser.Scene{
         let spikeBallLayer = spikeBallMap.createStaticLayer("BoxPattern",[this.terrain], 0, 0).setDepth(-2);
         
         // set texture to player because server loading 
+        this.player.setTexture('drake',0);
         this.spikeBall.setTexture("spike");
 
         //map collisions with Player and SpikeBall
         for(var key in this.playerObjects){
-            this.playerObjects[key].setTexture("drake",9);
+            this.playerObjects[key].setTexture("drake",0);
             let p = this.playerObjects[key];
             
             this.physics.add.collider(p, botLayer);
@@ -137,25 +140,25 @@ export default class BallGame extends Phaser.Scene{
         this.anims.create({
             key : "rightWalk",
             frameRate: 15,
-            frames: this.anims.generateFrameNumbers('drake', {start: 17, end:23})
+            frames: this.anims.generateFrameNumbers('drake', {
+                frames: [   ,18,19,20,21,22,23]
+            })
         });
                 
         this.anims.create({
             key : "jumping",
             frameRate: 15,
-            frames: this.anims.generateFrameNumbers('drake', {start:8 , end:9})
+            frames: this.anims.generateFrameNumbers('drake', {
+                frames: [8,9]
+            })
         })
-
-                
-        this.anims.create({
-            key : "falling",
-            frames: this.anims.generateFrameNumbers('drake', {start:14, end:16})
-        });
 
         this.anims.create({
             key : "SS",
             frameRate: 15,
-            frames: this.anims.generateFrameNumbers('drake', {start:0, end:3})
+            frames: this.anims.generateFrameNumbers('drake', {
+                frames: [0,1,2,3]
+            })
         });
 
         // Metodo que se encarga de actualizar las posiciones del jugador 
@@ -179,20 +182,19 @@ export default class BallGame extends Phaser.Scene{
     }
 
     checkAnimation(){
+        console.log(this.player.frame);
         if(this.keyboard.D.isDown){
-            //this.player.play("rightWalk");
+            this.player.play("rightWalk", true);
+            console.log("ACA");
         }
         if(this.keyboard.A.isDown){
-            //this.player.anims.playReverse("rightWalk");
+            this.player.anims.playReverse("rightWalk",true);
         }
         if(this.keyboard.W.isDown && this.player.body.blocked.down){  
-            //this.player.play("jumping");
+            this.player.play("jumping",true);
         }   
-        if(!this.player.body.touching.down){
-            //this.player.play("falling");
-        }
         if(this.keyboard.A.isUp && this.keyboard.D.isUp){ // Not moving x 
-           //this.player.play("SS");
+            this.player.play("SS",true);
         }
     }
 

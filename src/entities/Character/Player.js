@@ -23,6 +23,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
 
         this.username = username;
 
+        // animations usefull things
+        this.orientation = "right";
+
         // AABB and Size
         this.setScale(2);
         this.setSize(15,15).setOffset(5,5);
@@ -76,9 +79,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
     update(keyboard){
         var data;
         if(keyboard.D.isDown){
+            if(this.orientation != "right"){
+                this.flipX = false;
+                this.orientation = "right";
+            }
             this.setVelocityX(124);
         }
         if(keyboard.A.isDown){
+            if(this.orientation != "left"){
+                this.flipX = true;
+                this.orientation = "left";
+            }
             this.setVelocityX(-124);
         }
         if(keyboard.W.isDown && this.body.blocked.down){  
