@@ -21,7 +21,6 @@ class Room{
      * @param {Spike} spike Spike de la partida 
      */
     addSpike(spike){
-        console.log(spike);
         this.spike = spike; 
     }
 
@@ -98,7 +97,6 @@ class Room{
         for(var id in this.sockets){
             players += "\n" + this.sockets[id].getUsername();
         }
-        console.log(players);
         return players;
     }
 }

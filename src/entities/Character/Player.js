@@ -1,3 +1,6 @@
+/**
+ * Representacion del jugador
+ */
 export default class Player extends Phaser.Physics.Arcade.Sprite{
     /**
      * Constructor
@@ -8,9 +11,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
      * @param {string} username Nombre del jugador 
      * @param {Socket} socket Socket del jugador 
      * @param {string} roomID ID de la sala del jugador
+     * @param {number} frame Frame del personaje con respecto al Spritesheet 
      */
-    constructor(x,y,scene,texture,username,socket, roomID){
-        super(scene,x,y,texture);
+    constructor(x,y,scene,texture,username,socket, roomID,frame){
+        super(scene,x,y,texture,frame);
 
         // Connect with the scene
         scene.sys.updateList.add(this);
@@ -18,6 +22,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
         scene.physics.world.enableBody(this);
 
         this.username = username;
+
         // AABB and Size
         this.setScale(2);
         this.setSize(15,15).setOffset(5,5);
@@ -30,6 +35,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
             x : this.x,
             y : this.y
         };
+    }
+
+    /**
+     * Metodo que se encarga de retornar la direccion de la animación
+     */
+    getOrientation(){
+        return this.orientation;
     }
 
     /**

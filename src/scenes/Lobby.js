@@ -33,7 +33,6 @@ export default class Lobby extends Phaser.Scene{
         this.music.play(musicConfig);
 
         this.server.on("RefreshLobby", (players) => {
-            console.log(players);
             this.players = players;
         });
     }
