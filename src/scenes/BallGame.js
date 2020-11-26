@@ -1,5 +1,7 @@
 import Player from "../entities/Character/Player";
 import SpikeBall from "../entities/Statics/spikeBall";
+import eventsCenter from "./EventsCenter";
+
 var availableSkins = ["red","blue","yellow","green"];
 
 
@@ -13,10 +15,10 @@ export default class BallGame extends Phaser.Scene{
             active: false
         });
         this.player;
+        this.isPlaying = false;
         this.playerObjects = {};
         this.lastDead;
         this.spikeBall;
-        this.updateT = false;
         this.skin = availableSkins[Math.floor(Math.random() * 4)];
     }
     
@@ -27,6 +29,13 @@ export default class BallGame extends Phaser.Scene{
         this.host = data.host;
     }
 
+    /**
+    * Metodo que se encarga de reiniciar el navegador
+    */
+    restartBrowser(){
+        location.reload();
+    }
+    
     /**
      * Metodo que se encarga de verificar si el juego ha finalizado
      */
@@ -46,14 +55,20 @@ export default class BallGame extends Phaser.Scene{
         var onlyOneTime = false;
         var skinName = this.skin;
         
+        this.scene.launch("BallGameUI");
+    
         // images 
         this.load.spritesheet("drake", "src/assets/images/SpriteSheets/"+skinName+".png", {frameWidth: 24, frameHeight: 24});
         this.load.image("spike","src/assets/images/Statics/spikeBall.png");
 
-        this.textures.addSpriteSheetFromAtlas();
-
         this.load.image("terrain", "src/assets/images/sci-fi-tileset.png");
         this.load.tilemapTiledJSON("spikeBallMap","src/assets/map/spikeBallMap.json");
+
+        this.load.image("win", "src/assets/miscelanous/victory.png");
+        this.load.image("lose","src/assets/miscelanous/lose.png");
+
+        // music
+        this.load.audio("winningMusic", "src/assets/music/winningMusic.ogg", "src/assets/music/winningMusic.mp3");
 
         // sounds
         this.load.audio("die", "src/assets/sounds/diePlayer.ogg", "src/assets/sounds/diePlayer.mp3");
@@ -87,10 +102,13 @@ export default class BallGame extends Phaser.Scene{
     }
 
     create(){            
-        this.keyboard = this.input.keyboard.addKeys("W, A, S, D");
+        this.keyboard = this.input.keyboard.addKeys("W, A, S, D, space");
 
         let spikeBallMap = this.add.tilemap("spikeBallMap");
         this.terrain = spikeBallMap.addTilesetImage("sci-fi-tileset","terrain");
+
+        // music
+        this.winningMusic = this.sound.add("winningMusic");
 
         // sounds 
         this.dieSound = this.sound.add("die");
@@ -123,7 +141,7 @@ export default class BallGame extends Phaser.Scene{
             // collisions with player and spikeBall
             this.physics.add.overlap(p,this.spikeBall, () =>{
                 this.lastDead = p.getUsername();
-                //p.destroy();
+                p.destroy();
                 //this.dieSound.play();
             });
 
@@ -137,6 +155,7 @@ export default class BallGame extends Phaser.Scene{
             })        
         }
 
+        // Setup of the animations (Can be assign to player, don't know, if you do it please, thx)
         this.anims.create({
             key : "rightWalk",
             frameRate: 15,
@@ -177,15 +196,32 @@ export default class BallGame extends Phaser.Scene{
                 this.spikeBall.updateCoords(data);
             }
         });
-        
-        window.player = this.player;
+
+        this.server.on("WINNING_SCENE", () =>{
+            let musicConfig = {
+                mute: false,
+                volume: 0.3,
+                loop: true,
+                delay: 0
+            }
+            if(this.lastDead == this.player.getUsername()){
+                this.add.image(545,360, 'win');
+            }else{
+                this.add.image(545,360, 'lose');
+            }
+            this.scene.stop("BallGameUI");
+            this.isPlaying = false;
+            this.winningMusic.play(musicConfig);
+        });
+
+        this.server.on("LOBBY_R", () =>{
+            this.restartBrowser();
+        });
     }
 
     checkAnimation(){
-        console.log(this.player.frame);
         if(this.keyboard.D.isDown){
             this.player.play("rightWalk", true);
-            console.log("ACA");
         }
         if(this.keyboard.A.isDown){
             this.player.anims.playReverse("rightWalk",true);
@@ -196,6 +232,8 @@ export default class BallGame extends Phaser.Scene{
         if(this.keyboard.A.isUp && this.keyboard.D.isUp){ // Not moving x 
             this.player.play("SS",true);
         }
+
+        this.isPlaying = true;
     }
 
     update(){
@@ -204,7 +242,11 @@ export default class BallGame extends Phaser.Scene{
             this.checkAnimation();
         }
         
-        if(this.gameOver()){
+        if((this.host == this.server.id) && this.keyboard.space.isDown && !this.isPlaying){
+            this.server.emit("RESTART_GAME", this.roomID);
+        }
+        if(this.gameOver() && this.isPlaying){
+            this.isPlaying = false;
             this.server.emit("GAME_OVER",this.roomID);
         }
         
@@ -218,19 +260,5 @@ export default class BallGame extends Phaser.Scene{
                 this.server.emit("UPDATE_SPIKE",data)
             }
         },100);
-
-        // Se encarga de dar por terminada por la partida y devolver al Lobby
-        this.server.on("LOBBY", () => {
-            if(this.scene.isActive()){
-                let data = {
-                    id: this.roomID,
-                    socket: this.server,
-                    username: this.username
-                }
-                this.scene.start("Lobby",data);
-                this.scene.setActive(false);
-                this.scene.stop("BallGame");
-            }
-        });
     }
 }

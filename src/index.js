@@ -3,7 +3,6 @@ import MainMenu from "./scenes/MainMenu";
 import Lobby from "./scenes/Lobby";
 import BallGame from "./scenes/BallGame";
 import BallGameUI from "./scenes/BallGameUI";
-
 const config = {
   type: Phaser.AUTO,
   width: 1090,

@@ -3,6 +3,11 @@ export default class Lobby extends Phaser.Scene{
         super({
             key: 'Lobby',
         });
+        this.host;
+    }
+
+    static Restart(){
+        this.scene.restart();
     }
 
     init(data){
@@ -35,6 +40,9 @@ export default class Lobby extends Phaser.Scene{
         this.server.on("RefreshLobby", (players) => {
             this.players = players;
         });
+
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+        });
     }
 
     update(){
@@ -45,6 +53,7 @@ export default class Lobby extends Phaser.Scene{
             this.server.emit("isLeader", this.roomId);
             this.server.on("Leader", (host) =>{
                 if(host){    
+                    this.host = this.server.id;
                     this.server.emit("StartGame", this.roomId);
                 } 
             });
@@ -60,7 +69,6 @@ export default class Lobby extends Phaser.Scene{
                 }
                 this.music.stop();
                 this.scene.start("BallGame",data);
-                this.scene.start("BallGameUI");
                 this.scene.setActive(false);
                 this.scene.stop("Lobby");
             }

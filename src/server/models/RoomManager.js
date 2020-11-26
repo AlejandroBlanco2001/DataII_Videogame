@@ -132,8 +132,12 @@ class RoomManager{
         // Metodo que se encarga de notificar la finalizacion de la partida
         socket.on("GAME_OVER", (roomID) => {
             this.rooms[roomID].playing = false;
-            io.to(roomID).emit("LOBBY");
+            io.to(roomID).emit("WINNING_SCENE");
         });
+
+        socket.on("RESTART_GAME", (roomId) =>{
+            io.to(roomId).emit("LOBBY_R");
+        })
 
     }
 

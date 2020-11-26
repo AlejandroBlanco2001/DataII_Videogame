@@ -83,20 +83,18 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
                 this.flipX = false;
                 this.orientation = "right";
             }
-            this.setVelocityX(124);
+            this.setVelocityX(200);
         }
         if(keyboard.A.isDown){
             if(this.orientation != "left"){
                 this.flipX = true;
                 this.orientation = "left";
             }
-            this.setVelocityX(-124);
+            this.setVelocityX(-200);
         }
         if(keyboard.W.isDown && this.body.blocked.down){  
-            this.setVelocityY(-200);
+            this.setVelocityY(-250);
         }   
-        if(!this.body.touching.down){
-        }
         if(keyboard.A.isUp && keyboard.D.isUp){ // Not moving x 
             this.setVelocityX(0); 
         }

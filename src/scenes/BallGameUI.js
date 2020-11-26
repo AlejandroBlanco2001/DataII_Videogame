@@ -18,6 +18,10 @@ export default class BallGameUI extends Phaser.Scene{
         }
         this.music = this.sound.add("gameMusic");
         this.music.play(musicConfig);
+    
+        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.music.stop();
+        });
     }   
 
     update(){
