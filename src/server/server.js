@@ -1,3 +1,4 @@
+// Dependencies
 const express = require('express');
 const path = require('path');
 const webpack = require('webpack');
@@ -39,6 +40,9 @@ const server = app.listen(PORT, () =>{
     console.log("Listening on " + PORT);
 })
 
+/**
+ * Declaracion del servidor de sockets
+ */
 const io = socket(server);
 
 /**

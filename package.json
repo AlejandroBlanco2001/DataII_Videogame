@@ -4,6 +4,7 @@
   "description": "A project made for Data Structure II with Phaser JS",
   "main": "./src/index.js",
   "scripts": {
+    "doc": "jsdoc -c jsdoc.json",
     "build": "webpack -d",
     "start": "node src/server/server.js"
   },
@@ -24,6 +25,7 @@
     "@babel/node": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
     "babel-loader": "^8.2.1",
+    "jsdoc": "^3.6.6",
     "terser-webpack-plugin": "^2.2.1"
   },
   "dependencies": {

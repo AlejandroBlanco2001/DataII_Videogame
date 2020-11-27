@@ -1,7 +1,7 @@
-const Room = require("../models/Room");
 const Utilities = require("../utils");
 const Player =  require("../models/Player");
 const Spike = require("../models/Spike");
+const Room = require("../models/Room");
 
 /**
  * Representacion de un manejador de Salas
@@ -135,6 +135,7 @@ class RoomManager{
             io.to(roomID).emit("WINNING_SCENE");
         });
 
+        // Metodo que se encarga de reiniciar esa partida
         socket.on("RESTART_GAME", (roomId) =>{
             io.to(roomId).emit("LOBBY_R");
         })
@@ -142,7 +143,8 @@ class RoomManager{
     }
 
     /**
-     * Metodo que se encarga de obtener las salas del Servidro
+     * Metodo que se encarga de obtener las salas del Servidor
+     * @returns {Object} - Salas que maneja
      */
     getRooms(){
         return this.rooms;
@@ -150,7 +152,8 @@ class RoomManager{
 
     /**
      * Metodo que se encarga de obtener una sala en particular
-     * @param {string} room ID de la sala
+     * @param {string} room - ID de la sala
+     * @returns {Object} - Sala deseada
      */
     getRoom(room){
         if(room != null){

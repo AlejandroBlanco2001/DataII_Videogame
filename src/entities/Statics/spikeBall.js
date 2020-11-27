@@ -1,6 +1,14 @@
 /**
  * Representacion de la Spike
  */
+
+/**
+  * Coordenadas de la entidad
+  * @typedef {Object} JSON
+  * @property {number} x - Posicion X
+  * @property {number} y - Posicion Y
+*/
+
 export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
     /**
      * Constructor
@@ -10,11 +18,11 @@ export default class spikeBall extends Phaser.Physics.Arcade.Sprite{
      * @param {string} texture Textura del sprite  
      */
     constructor(scene,x,y,texture){
+        // Sync with scene
         super(scene,x,y,texture);
         scene.sys.updateList.add(this);
         scene.sys.displayList.add(this);
         scene.physics.world.enableBody(this);
-
         this.body.velocity.setTo(200,200);
 
         // AABB and Size

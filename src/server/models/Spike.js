@@ -1,3 +1,10 @@
+/**
+  * Coordenadas de la entidad
+  * @typedef {Object} JSON
+  * @property {number} x - Posicion X
+  * @property {number} y - Posicion Y
+  */
+
 const BaseModel = require("../util/base-model");
 
 /**

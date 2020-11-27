@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server/models/Room.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server/models/Room.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Representacion de una sala del Servidor
+ */
+
+/**
+  * Coordenadas de la entidad
+  * @typedef {Object} JSON
+  * @property {number} x - Posicion X
+  * @property {number} y - Posicion Y
+*/
+
+class Room{
+    /**
+     * Constructor
+     * @param {string} id ID de la sala 
+     * @param {string} host ID del socket que inicia la partida
+     * @param {boolean} state Partida iniciada 
+     */
+    constructor(id,host,state){
+        this.id = id;
+        this.host = host;
+        this.playing = state;
+        this.spike;
+        this.sockets = {};
+    }
+
+    /**
+     * Metodo que se encarga de añadir una Spike a la partida
+     * @param {Object} spike Spike de la partida 
+     */
+    addSpike(spike){
+        this.spike = spike; 
+    }
+
+    /**
+     * Metodo que se encarga de obtener la Spike de la partida
+     * @returns - Spike de la room
+     */
+    getSpike(){
+        return this.spike;
+    }
+
+    /**
+     * Metodo que se encarga de actualizar un jugador
+     * @param {Object} socket Socket del cliente 
+     * @param {JSON} data Coordenadas del jugador
+     */
+    updatePlayers(socket,data){
+        let p = this.sockets[socket.id];
+        p.updateCoords(data);
+    }
+
+    /**
+     * Metodo que se encarga de devolver la lista de jugadores
+     */
+    getPlayers(){
+        return this.sockets;
+    }
+
+    /**
+     * Metood que se encarga de obtener un jugador
+     * @param {string} playerID ID del socket de un jugador
+     */
+    getPlayer(playerID){
+        return this.sockets[playerID];
+    }
+
+    /**
+     * Metodo que se encarga de devolver el ID del socket que es host
+     * @returns {string} - ID del socket que es host 
+     */
+    getHost(){
+        return this.host;
+    }
+
+    /**
+     * Metodo que devuelve el ID de la sala
+     * @returns {string} ID de la sala
+     */
+    getID(){
+        return this.id;
+    }
+
+    /**
+     * Metodo que es encarga de añadir jugadores a la sala
+     * @param {Object} player - Jugador del cliente a agregar
+     * @param {Object} socket - ID del socket del cliente a agregar
+     */
+    addPlayer(player,socket){
+        if(player != null){
+            this.sockets[socket] = player;
+        }
+    }
+
+    /**
+     * Metodo que se encarga de expulsar un jugador si se desconecta
+     * @param {Object} socketID - ID del socket del cliente a expulsar
+     */
+    expulsePlayer(socketID){
+        delete this.sockets[socketID];
+    }
+
+    /**
+     * Metodo que se encarga de obtener la lista de los jugadores de la sala
+     * @returns {string} Nombre de todos los jugadores
+     */
+    namesPlayer(){
+        var players = "";  
+        for(var id in this.sockets){
+            players += "\n" + this.sockets[id].getUsername();
+        }
+        return players;
+    }
+}
+
+module.exports = Room;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Documentacion de Move Quick Or Die</a></h2><h3>Classes</h3><ul><li><a href="BaseModel.html">BaseModel</a></li><li><a href="module.exports.html">exports</a></li><li><a href="module.exports_module.exports.html">exports</a></li><li><a href="global.html#Player">Player</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomManager.html">RoomManager</a></li><li><a href="global.html#Spike">Spike</a></li></ul><h3>Global</h3><ul><li><a href="global.html#availableSkins">availableSkins</a></li><li><a href="global.html#BallGameUI">BallGameUI</a></li><li><a href="global.html#checkAnimation">checkAnimation</a></li><li><a href="global.html#checkUserInRoom">checkUserInRoom</a></li><li><a href="global.html#configAABB">configAABB</a></li><li><a href="global.html#faster">faster</a></li><li><a href="global.html#gameOver">gameOver</a></li><li><a href="global.html#generateRandomID">generateRandomID</a></li><li><a href="global.html#getNewPos">getNewPos</a></li><li><a href="global.html#getOrientation">getOrientation</a></li><li><a href="global.html#getRandomRespawn">getRandomRespawn</a></li><li><a href="global.html#getUsername">getUsername</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#io">io</a></li><li><a href="global.html#isAnyRoomAvailable">isAnyRoomAvailable</a></li><li><a href="global.html#posibleRespawnPoints">posibleRespawnPoints</a></li><li><a href="global.html#randomInteger">randomInteger</a></li><li><a href="global.html#restartBrowser">restartBrowser</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#update">update</a></li><li><a href="global.html#updateCoords">updateCoords</a></li><li><a href="global.html#updatePos">updatePos</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Nov 26 2020 18:52:00 GMT-0500 (GMT-05:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

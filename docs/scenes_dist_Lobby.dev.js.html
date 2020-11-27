@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: scenes/dist/Lobby.dev.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: scenes/dist/Lobby.dev.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+function _typeof(obj) { if (typeof Symbol === "function" &amp;&amp; typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj &amp;&amp; typeof Symbol === "function" &amp;&amp; obj.constructor === Symbol &amp;&amp; obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i &lt; props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call &amp;&amp; (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" &amp;&amp; superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass &amp;&amp; superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**
+ * Representacion del Lobby
+ */
+
+/**
+  * Valores entre Escenas
+  * @typedef {Object} JSON_SCENES
+  * @property {number} id - ID de la Sala
+  * @property {Socket} socket - Socket del cliente
+  * @property {string} username - Nombre de usuario del cliente
+  * @property {string} [host] - ID del socket que es host de la partida
+*/
+var Lobby =
+/*#__PURE__*/
+function (_Phaser$Scene) {
+  _inherits(Lobby, _Phaser$Scene);
+
+  /**
+   * Constructor
+   */
+  function Lobby() {
+    var _this;
+
+    _classCallCheck(this, Lobby);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Lobby).call(this, {
+      key: 'Lobby'
+    }));
+    _this.host;
+    return _this;
+  }
+  /**
+   * Inicializador de escena
+   * @param {JSON_SCENES} data Informacion entre escenas 
+   */
+
+
+  _createClass(Lobby, [{
+    key: "init",
+    value: function init(data) {
+      this.roomId = data.id;
+      this.server = data.socket;
+      this.username = data.username;
+    }
+  }, {
+    key: "preload",
+    value: function preload() {
+      this.load.audio("waitMusic", "src/assets/music/lobbyWait.ogg", "src/assets/music/lobbyWait.mp3");
+    }
+  }, {
+    key: "create",
+    value: function create() {
+      var _this2 = this;
+
+      this.font = {
+        fontFamily: "Georgia"
+      };
+      this.players = "";
+      this.cursorKeys = this.input.keyboard.createCursorKeys();
+      var musicConfig = {
+        mute: false,
+        volume: 0.5,
+        loop: true,
+        delay: 0
+      };
+      this.music = this.sound.add("waitMusic");
+      this.music.play(musicConfig); // Metodo que se encarga de refrescar los nombres de los jugadores
+
+      this.server.on("RefreshLobby", function (players) {
+        _this2.players = players;
+      });
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      var _this3 = this;
+
+      this.add.text(640, 300, "Room: " + this.roomId, this.font);
+      this.add.text(500, 300, "In the room are" + "\n" + this.players, this.font); // Verifica si el host desea iniciar la partida
+
+      if (this.cursorKeys.space.isDown) {
+        this.server.emit("isLeader", this.roomId);
+        this.server.on("Leader", function (host) {
+          if (host) {
+            _this3.host = _this3.server.id;
+
+            _this3.server.emit("StartGame", _this3.roomId);
+          }
+        });
+      } // Metodo que se encarga de iniciar la partida por parte del servidor
+
+
+      this.server.on("RoundStart", function () {
+        if (_this3.scene.isActive()) {
+          /**
+           * @type {JSON_SCENES}
+           */
+          var data = {
+            username: _this3.username,
+            server: _this3.server,
+            roomID: _this3.roomId,
+            host: _this3.host
+          };
+
+          _this3.music.stop();
+
+          _this3.scene.start("BallGame", data);
+
+          _this3.scene.setActive(false);
+
+          _this3.scene.stop("Lobby");
+        }
+      });
+    }
+  }]);
+
+  return Lobby;
+}(Phaser.Scene);
+
+exports["default"] = Lobby;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Documentacion de Move Quick Or Die</a></h2><h3>Classes</h3><ul><li><a href="BaseModel.html">BaseModel</a></li><li><a href="module.exports.html">exports</a></li><li><a href="module.exports_module.exports.html">exports</a></li><li><a href="global.html#Player">Player</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomManager.html">RoomManager</a></li><li><a href="global.html#Spike">Spike</a></li></ul><h3>Global</h3><ul><li><a href="global.html#availableSkins">availableSkins</a></li><li><a href="global.html#BallGameUI">BallGameUI</a></li><li><a href="global.html#checkAnimation">checkAnimation</a></li><li><a href="global.html#checkUserInRoom">checkUserInRoom</a></li><li><a href="global.html#configAABB">configAABB</a></li><li><a href="global.html#faster">faster</a></li><li><a href="global.html#gameOver">gameOver</a></li><li><a href="global.html#generateRandomID">generateRandomID</a></li><li><a href="global.html#getNewPos">getNewPos</a></li><li><a href="global.html#getOrientation">getOrientation</a></li><li><a href="global.html#getRandomRespawn">getRandomRespawn</a></li><li><a href="global.html#getUsername">getUsername</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#io">io</a></li><li><a href="global.html#isAnyRoomAvailable">isAnyRoomAvailable</a></li><li><a href="global.html#posibleRespawnPoints">posibleRespawnPoints</a></li><li><a href="global.html#randomInteger">randomInteger</a></li><li><a href="global.html#restartBrowser">restartBrowser</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#update">update</a></li><li><a href="global.html#updateCoords">updateCoords</a></li><li><a href="global.html#updatePos">updatePos</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Nov 26 2020 18:52:00 GMT-0500 (GMT-05:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

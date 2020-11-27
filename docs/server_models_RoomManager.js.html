@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server/models/RoomManager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server/models/RoomManager.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const Utilities = require("../utils");
+const Player =  require("../models/Player");
+const Spike = require("../models/Spike");
+const Room = require("../models/Room");
+
+/**
+ * Representacion de un manejador de Salas
+ */
+class RoomManager{
+    
+    // Salas del servidor
+    static rooms = {};
+
+    /**
+     * Metodo que se encarga de añadir sockets a la sala de juego
+     * @param {string} room ID de la sala 
+     * @param {Socket} socket Socket del cliente 
+     * @param {string} username Nombre del usuario 
+     * @param {boolean} host Representacion de si el jugador es host de su sala 
+     */
+    static joinRoom(room,socket,username,host){
+        let pos = Utilities.getRandomRespawn();
+        let p = new Player(socket.id,pos,host,username);
+        room.addPlayer(p,socket.id);
+        socket.join(room.getID(), () =>{
+            socket.roomId = room.getID();
+            console.log(socket.id, "Joined", room.getID());
+        });
+    }
+
+    /**
+     * Metodo estatico que representa el manejo de las salas 
+     * @param {IO} io Representa el servidor
+     * @param {Socket} socket Representa el socket de cada cliente 
+     */
+    static onConnection(io,socket){
+
+        /**
+         * Metodo que se encarga de manera asincronica mandar el listado de jugadores por sala
+         * @param {string} roomId 
+         */
+        this.refreshLobby = (roomId) =>{
+            return new Promise(() =>{
+                setTimeout(() =>{
+                    let room = this.rooms[roomId];
+                    let names = room.namesPlayer();
+                    io.to(roomId).emit("RefreshLobby",names);
+                }, 1000);
+            });
+        }
+
+        /**
+         * Metodo asincronico que se encarga de actualizar la posicion de los jugadores
+         * @param {string} roomID ID del servidor 
+         */
+        this.update = (roomID) =>{
+            return new Promise(() => {
+                setTimeout(() => {
+                    let players = this.rooms[roomID].getPlayers();
+                    io.to(roomID).emit("UPDATE",players);
+                },600);
+            });
+        }
+
+        /**
+         * Metodo que se encarga de actualizara la Spike
+         * @param {string} roomID  ID del servidor
+         */
+        this.updateSpike = (roomID) =>{
+            let spike = this.rooms[roomID].getSpike();
+            io.to(roomID).emit("SPIKE_UPDATE",spike);
+        }
+        
+        // Metodo que se encarga de crear una sala de manera asincronica
+        socket.on("createRoom", async (username) =>{
+            let id = Utilities.generateRandomID();
+            let r = new Room(id,socket.id,false);
+            this.rooms[id] = r; 
+            this.joinRoom(r,socket,username,true);
+            socket.emit("createdRoom",id);
+            await this.refreshLobby(id);
+        });
+
+        // Metodo que se encarga de unir a los clientes a una sala
+        socket.on("joinRoom", async (roomID,username) => {
+            if(!Utilities.checkUserInRoom(this.rooms,roomID)){
+                const room = this.rooms[roomID];
+                this.joinRoom(room,socket,username,false);
+                socket.emit("createdRoom", roomID);
+                await this.refreshLobby(roomID);
+            }
+        });
+    
+        // Metodo que se encarga de verificar si la persona es el host de su sala
+        socket.on("isLeader", (roomID) => {
+            socket.emit("Leader",this.rooms[roomID].host == socket.id);
+        });
+
+        // Metodo que se encarga de iniciar una partida de una sala en especifica
+        socket.on("StartGame", (roomID) => {
+            this.rooms[roomID].addSpike(new Spike("Spike",600,400));
+            this.rooms[roomID].playing = true;
+            io.to(roomID).emit("RoundStart");
+        });
+
+        // Metodo que se encarga de devolver todos los jugadores a cada cliente
+        socket.on("gameStart", (roomID) =>{
+            let p = this.rooms[roomID].getPlayers();
+            let s = this.rooms[roomID].getSpike();
+            let data = {
+                x: s.getX(),
+                y: s.getY()
+            }
+            io.to(roomID).emit("PLAYERS",p,data);
+        });
+
+        // Metodo asincronico que se encarga de notificar la actualizacion de las posiciones de los jugadores 
+        socket.on("POSITION_CHANGE", async (data) => {
+            let room = this.rooms[data.room];
+            let player = room.getPlayer(socket.id);
+            player.updateCoords(data);
+            await this.update(data.room);
+        });
+
+        // Metodo asincronico que se encarga de notificar la actualizacion de la posicion de la Spike 
+        socket.on("UPDATE_SPIKE", (data) => {
+            let room = this.rooms[data.roomID];
+            room.getSpike().updateCoords(data);
+            this.updateSpike(data.roomID);
+        });
+
+        // Metodo que se encarga de notificar la finalizacion de la partida
+        socket.on("GAME_OVER", (roomID) => {
+            this.rooms[roomID].playing = false;
+            io.to(roomID).emit("WINNING_SCENE");
+        });
+
+        // Metodo que se encarga de reiniciar esa partida
+        socket.on("RESTART_GAME", (roomId) =>{
+            io.to(roomId).emit("LOBBY_R");
+        })
+
+    }
+
+    /**
+     * Metodo que se encarga de obtener las salas del Servidor
+     * @returns {Object} - Salas que maneja
+     */
+    getRooms(){
+        return this.rooms;
+    }
+
+    /**
+     * Metodo que se encarga de obtener una sala en particular
+     * @param {string} room - ID de la sala
+     * @returns {Object} - Sala deseada
+     */
+    getRoom(room){
+        if(room != null){
+            return this.rooms[room.getID()];
+        }
+    }
+}
+
+module.exports = RoomManager;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Documentacion de Move Quick Or Die</a></h2><h3>Classes</h3><ul><li><a href="BaseModel.html">BaseModel</a></li><li><a href="module.exports.html">exports</a></li><li><a href="module.exports_module.exports.html">exports</a></li><li><a href="global.html#Player">Player</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomManager.html">RoomManager</a></li><li><a href="global.html#Spike">Spike</a></li></ul><h3>Global</h3><ul><li><a href="global.html#availableSkins">availableSkins</a></li><li><a href="global.html#BallGameUI">BallGameUI</a></li><li><a href="global.html#checkAnimation">checkAnimation</a></li><li><a href="global.html#checkUserInRoom">checkUserInRoom</a></li><li><a href="global.html#configAABB">configAABB</a></li><li><a href="global.html#faster">faster</a></li><li><a href="global.html#gameOver">gameOver</a></li><li><a href="global.html#generateRandomID">generateRandomID</a></li><li><a href="global.html#getNewPos">getNewPos</a></li><li><a href="global.html#getOrientation">getOrientation</a></li><li><a href="global.html#getRandomRespawn">getRandomRespawn</a></li><li><a href="global.html#getUsername">getUsername</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#io">io</a></li><li><a href="global.html#isAnyRoomAvailable">isAnyRoomAvailable</a></li><li><a href="global.html#posibleRespawnPoints">posibleRespawnPoints</a></li><li><a href="global.html#randomInteger">randomInteger</a></li><li><a href="global.html#restartBrowser">restartBrowser</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#update">update</a></li><li><a href="global.html#updateCoords">updateCoords</a></li><li><a href="global.html#updatePos">updatePos</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Nov 26 2020 18:52:00 GMT-0500 (GMT-05:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

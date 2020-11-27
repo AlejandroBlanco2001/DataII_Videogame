@@ -2,12 +2,24 @@ import Player from "../entities/Character/Player";
 import SpikeBall from "../entities/Statics/spikeBall";
 import eventsCenter from "./EventsCenter";
 
+/**
+ * Valores de las skins
+ * @type {Array<string>}
+ */
 var availableSkins = ["red","blue","yellow","green"];
-
 
 /**
  * Representacion del Front End del juego
  */
+
+/**
+  * Valores entre Escenas
+  * @typedef {Object} JSON_SCENES
+  * @property {number} id - ID de la Sala
+  * @property {Socket} socket - Socket del cliente
+  * @property {string} username - Nombre de usuario del cliente
+  * @property {string} [host] - ID del socket que es host de la partida
+*/
 export default class BallGame extends Phaser.Scene{
     constructor(){
         super({
@@ -22,6 +34,10 @@ export default class BallGame extends Phaser.Scene{
         this.skin = availableSkins[Math.floor(Math.random() * 4)];
     }
     
+    /**
+     * Inicializador de la clase
+     * @param {JSON_SCENES} data Informacion entre escenas 
+     */
     init(data){
         this.roomID = data.roomID;
         this.username = data.username;
@@ -51,7 +67,13 @@ export default class BallGame extends Phaser.Scene{
 
 
     preload(){
+        /**
+         * Variable que impide la generacion de dobles
+         */
         var notDuplicate = false;
+        /**
+         * Variable que controla la creacion de los jugadores
+         */
         var onlyOneTime = false;
         var skinName = this.skin;
         
@@ -74,14 +96,16 @@ export default class BallGame extends Phaser.Scene{
         this.load.audio("die", "src/assets/sounds/diePlayer.ogg", "src/assets/sounds/diePlayer.mp3");
         this.load.audio("crash", "src/assets/sounds/impactWall.ogg", "src/assets/sounds/impactWall.mp3");
 
+        // client start gameplay
         this.server.emit("gameStart", this.roomID);
+        
         // Se encarga de crear los jugadores recibidos por el servidor
         this.server.on("PLAYERS", (dataPlayers, spikeRoom) => {
             if(!notDuplicate){
                 for(var key in dataPlayers){
+                    let data = {p: data} 
                     let p = dataPlayers[key];
                     let user = p.username;
-                    console.log(user);
                     var x = p.x;
                     var y = p.y;
                     if(user == this.username){
@@ -101,9 +125,11 @@ export default class BallGame extends Phaser.Scene{
         });        
     }
 
-    create(){            
+    create(){     
+        // Configuration of the Keyboard       
         this.keyboard = this.input.keyboard.addKeys("W, A, S, D, space");
 
+        // Loading map
         let spikeBallMap = this.add.tilemap("spikeBallMap");
         this.terrain = spikeBallMap.addTilesetImage("sci-fi-tileset","terrain");
 
@@ -128,11 +154,13 @@ export default class BallGame extends Phaser.Scene{
             this.playerObjects[key].setTexture("drake",0);
             let p = this.playerObjects[key];
             
+            // Collisions bot layer and player
             this.physics.add.collider(p, botLayer);
             botLayer.setCollisionByProperty({
                 collides: true
             }); 
 
+            // Collisions top layer and player
             this.physics.add.collider(p, topLayer);
             topLayer.setCollisionByProperty({
                 collides: true
@@ -145,11 +173,13 @@ export default class BallGame extends Phaser.Scene{
                 //this.dieSound.play();
             });
 
+            // collisiones wall-spike
             this.physics.add.collider(this.spikeBall,spikeBallLayer, () =>{
                 this.spikeBall.faster();
                 this.crashSound.play();
             });
     
+            // collision Wall-Spike with certain things
             spikeBallLayer.setCollisionByProperty({
                 hitByBall: true
             })        
@@ -197,6 +227,9 @@ export default class BallGame extends Phaser.Scene{
             }
         });
 
+        /***
+         * Metodo que se encarga de decidir el ganador de la partida
+         */
         this.server.on("WINNING_SCENE", () =>{
             let musicConfig = {
                 mute: false,
@@ -214,11 +247,17 @@ export default class BallGame extends Phaser.Scene{
             this.winningMusic.play(musicConfig);
         });
 
+        /**
+         * Metodo que se encarga de liberar la sala
+         */
         this.server.on("LOBBY_R", () =>{
             this.restartBrowser();
         });
     }
 
+    /**
+     * Metodo que se encarga de actualizar y obtener las animaciones 
+     */
     checkAnimation(){
         if(this.keyboard.D.isDown){
             this.player.play("rightWalk", true);
@@ -242,9 +281,11 @@ export default class BallGame extends Phaser.Scene{
             this.checkAnimation();
         }
         
+        // Host terminar la partida
         if((this.host == this.server.id) && this.keyboard.space.isDown && !this.isPlaying){
             this.server.emit("RESTART_GAME", this.roomID);
         }
+        // Condicion de partida terminada 
         if(this.gameOver() && this.isPlaying){
             this.isPlaying = false;
             this.server.emit("GAME_OVER",this.roomID);

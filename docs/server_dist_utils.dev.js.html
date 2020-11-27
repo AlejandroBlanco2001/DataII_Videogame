@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server/dist/utils.dev.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server/dist/utils.dev.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+var const_namespaces_rooms = [];
+var MAX_ROOMS = 8;
+var AVAILABLE_ROOM = 0;
+/**
+ * Posibles posiciones de Respawn
+ */
+
+var posibleRespawnPoints = [{
+  x: 256,
+  y: 627,
+  respawn: false
+}, {
+  x: 494,
+  y: 577,
+  respawn: false
+}, {
+  x: 640,
+  y: 577,
+  respawn: false
+}, {
+  x: 861,
+  y: 627,
+  respawn: false
+}, {
+  x: 868,
+  y: 341,
+  respawn: false
+}, {
+  x: 189,
+  y: 367,
+  respawn: false
+}, {
+  x: 391,
+  y: 214,
+  respawn: false
+}, {
+  x: 599,
+  y: 286,
+  respawn: false
+}];
+/** 
+    Inclusive random generate integers
+*/
+
+function randomInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+/** 
+* Generate the random identifier for a room 
+*/
+
+
+function generateRandomID() {
+  var letters = "abcdefghijklmnopqrstuvwxyz";
+  var ID = "";
+
+  for (var i = 0; i &lt; 6; i++) {
+    var random = randomInteger(0, 26);
+    ID += letters.charAt(random);
+  }
+
+  while (!checkUniqueID(ID)) {
+    generateRandomID();
+  }
+
+  const_namespaces_rooms[AVAILABLE_ROOM] = ID;
+  AVAILABLE_ROOM += 1;
+  return ID;
+}
+/**
+ * Metodo que se encarga de devolver si hay salas disponibles
+ */
+
+
+function isAnyRoomAvailable() {
+  return MAX_ROOMS != AVAILABLE_ROOM;
+}
+
+function checkUniqueID(ID) {
+  for (var i = 0; i &lt; const_namespaces_rooms.length; i++) {
+    if (ID == const_namespaces_rooms[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+/**
+ * Metodo que se encarga de verificar si el usuario se encuentra en alguna sala
+ * @param {*} rooms - Salas a verificar
+ * @param {String} idUser - Cadena que representa el ID del usuario
+ */
+
+
+function checkUserInRoom(rooms, idRoom) {
+  var room = rooms[idRoom];
+  var players = room.sockets;
+  var i;
+
+  for (var _i = 0, _Object$keys = Object.keys(players); _i &lt; _Object$keys.length; _i++) {
+    var key = _Object$keys[_i];
+    i += 1;
+  }
+
+  return i == 8;
+}
+/**
+ * Metodo que se encarga de recibir una coordenada aleatoria donde reaparecer
+ */
+
+
+function getRandomRespawn() {
+  var index = randomInteger(0, posibleRespawnPoints.length - 1);
+  var posRespawn = posibleRespawnPoints[index];
+
+  while (posRespawn.respawn) {
+    index = randomInteger(0, posibleRespawnPoints.length - 1);
+    posRespawn = posibleRespawnPoints[index];
+  }
+
+  index.respawn = true;
+  return posRespawn;
+}
+
+module.exports = {
+  checkUserInRoom: checkUserInRoom,
+  isAnyRoomAvailable: isAnyRoomAvailable,
+  generateRandomID: generateRandomID,
+  getRandomRespawn: getRandomRespawn
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Documentacion de Move Quick Or Die</a></h2><h3>Classes</h3><ul><li><a href="BaseModel.html">BaseModel</a></li><li><a href="module.exports.html">exports</a></li><li><a href="module.exports_module.exports.html">exports</a></li><li><a href="global.html#Player">Player</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomManager.html">RoomManager</a></li><li><a href="global.html#Spike">Spike</a></li></ul><h3>Global</h3><ul><li><a href="global.html#availableSkins">availableSkins</a></li><li><a href="global.html#BallGameUI">BallGameUI</a></li><li><a href="global.html#checkAnimation">checkAnimation</a></li><li><a href="global.html#checkUserInRoom">checkUserInRoom</a></li><li><a href="global.html#configAABB">configAABB</a></li><li><a href="global.html#faster">faster</a></li><li><a href="global.html#gameOver">gameOver</a></li><li><a href="global.html#generateRandomID">generateRandomID</a></li><li><a href="global.html#getNewPos">getNewPos</a></li><li><a href="global.html#getOrientation">getOrientation</a></li><li><a href="global.html#getRandomRespawn">getRandomRespawn</a></li><li><a href="global.html#getUsername">getUsername</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#io">io</a></li><li><a href="global.html#isAnyRoomAvailable">isAnyRoomAvailable</a></li><li><a href="global.html#posibleRespawnPoints">posibleRespawnPoints</a></li><li><a href="global.html#randomInteger">randomInteger</a></li><li><a href="global.html#restartBrowser">restartBrowser</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#update">update</a></li><li><a href="global.html#updateCoords">updateCoords</a></li><li><a href="global.html#updatePos">updatePos</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Nov 26 2020 18:52:00 GMT-0500 (GMT-05:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

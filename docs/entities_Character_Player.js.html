@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: entities/Character/Player.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: entities/Character/Player.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Representacion del jugador
+ */
+
+/**
+  * Coordenadas de la entidad
+  * @typedef {Object} JSON
+  * @property {number} x - Posicion X
+  * @property {number} y - Posicion Y
+*/
+
+/**
+  * Coordenadas de la entidad
+  * @typedef {Object} JSON_CONFIG
+  * @property {number} OffsetX - Posicion X
+  * @property {number} OffsetY - Posicion Y
+  * @property {Bounds} Bounds - Limites de la caja AABB 
+*/
+
+/**
+ * Valores de la caja de AABB
+ * @typedef {Object} Bounds
+ * @property {number} width - Limites de ancho
+ * @property {number} height - Limites de altura
+ */
+
+export default class Player extends Phaser.Physics.Arcade.Sprite{
+    /**
+     * Constructor
+     * @param {number} x Coordenada en X 
+     * @param {number} y Coordenada en Y
+     * @param {Phaser.Scene} scene Escena del juego
+     * @param {string} texture Textura del jugador 
+     * @param {string} username Nombre del jugador 
+     * @param {Socket} socket Socket del jugador 
+     * @param {string} roomID ID de la sala del jugador
+     * @param {number} frame Frame del personaje con respecto al Spritesheet 
+     */
+    constructor(x,y,scene,texture,username,socket, roomID,frame){
+        super(scene,x,y,texture,frame);
+
+        // Sync with the scene
+        scene.sys.updateList.add(this);
+        scene.sys.displayList.add(this);
+        scene.physics.world.enableBody(this);
+        this.username = username;
+
+        // animations usefull things
+        this.orientation = "right";
+
+        // AABB and Size
+        this.setScale(2);
+        this.setSize(15,15).setOffset(5,5);
+        this.setCollideWorldBounds(true);  
+
+        // Server-Side usefull things        
+        this.socket = socket;
+        this.roomID = roomID;
+        this.oldPositions = {
+            x : this.x,
+            y : this.y
+        };
+    }
+
+    /**
+     * Metodo que se encarga de retornar la direccion de la animación
+     */
+    getOrientation(){
+        return this.orientation;
+    }
+
+    /**
+     * Metodo que devuelve el nombre del usuario
+     */
+    getUsername(){
+        return this.username;
+    }
+
+    /**
+     * Metodo que se encarga de verificar la caja AABB de colisiones
+     * @param {JSON_CONFIG} config 
+     */
+    configAABB(config){
+        this.setSize(config.x,config.y).setOffset(config.OffsetX,config.OffsetY);
+        this.setCollideWorldBounds(config.bounds);
+    }
+    
+    /**
+     * Metodo que se encarga de actualizar los datos de las coordenadas del jugador
+     * @param {JSON} coords 
+     */
+    updateCoords(coords){
+        this.x = coords.x;
+        this.y = coords.y;
+    }
+
+    /**
+     * Metodo que se encarga de llamarse periodicamente para el movimiento del juego
+     * @param {Phaser.Input.keyboard} keyboard 
+     */
+    update(keyboard){
+        var data;
+        if(keyboard.D.isDown){
+            if(this.orientation != "right"){
+                this.flipX = false;
+                this.orientation = "right";
+            }
+            this.setVelocityX(200);
+        }
+        if(keyboard.A.isDown){
+            if(this.orientation != "left"){
+                this.flipX = true;
+                this.orientation = "left";
+            }
+            this.setVelocityX(-200);
+        }
+        if(keyboard.W.isDown &amp;&amp; this.body.blocked.down){  
+            this.setVelocityY(-250);
+        }   
+        if(keyboard.A.isUp &amp;&amp; keyboard.D.isUp){ // Not moving x 
+            this.setVelocityX(0); 
+        }
+        /**
+         * Llamada periodica cada 0.40 segundos para actualizar la posicion del jugador
+         */
+        setInterval(() =>{
+            data = {room: this.roomID, x: this.x, y: this.y}
+            if(this.oldPositions &amp;&amp; (this.x !== this.oldPositions.x || this.y !== this.oldPositions.y)){
+                this.socket.emit("POSITION_CHANGE",data);
+                this.oldPositions = {
+                    x: this.x,
+                    y: this.y
+                }
+            }
+        },400);
+    } 
+} </code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Documentacion de Move Quick Or Die</a></h2><h3>Classes</h3><ul><li><a href="BaseModel.html">BaseModel</a></li><li><a href="module.exports.html">exports</a></li><li><a href="module.exports_module.exports.html">exports</a></li><li><a href="global.html#Player">Player</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomManager.html">RoomManager</a></li><li><a href="global.html#Spike">Spike</a></li></ul><h3>Global</h3><ul><li><a href="global.html#availableSkins">availableSkins</a></li><li><a href="global.html#BallGameUI">BallGameUI</a></li><li><a href="global.html#checkAnimation">checkAnimation</a></li><li><a href="global.html#checkUserInRoom">checkUserInRoom</a></li><li><a href="global.html#configAABB">configAABB</a></li><li><a href="global.html#faster">faster</a></li><li><a href="global.html#gameOver">gameOver</a></li><li><a href="global.html#generateRandomID">generateRandomID</a></li><li><a href="global.html#getNewPos">getNewPos</a></li><li><a href="global.html#getOrientation">getOrientation</a></li><li><a href="global.html#getRandomRespawn">getRandomRespawn</a></li><li><a href="global.html#getUsername">getUsername</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#io">io</a></li><li><a href="global.html#isAnyRoomAvailable">isAnyRoomAvailable</a></li><li><a href="global.html#posibleRespawnPoints">posibleRespawnPoints</a></li><li><a href="global.html#randomInteger">randomInteger</a></li><li><a href="global.html#restartBrowser">restartBrowser</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#update">update</a></li><li><a href="global.html#updateCoords">updateCoords</a></li><li><a href="global.html#updatePos">updatePos</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Nov 26 2020 18:52:00 GMT-0500 (GMT-05:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

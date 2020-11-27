@@ -1,4 +1,20 @@
+/**
+ * Representacion del Lobby
+ */
+
+/**
+  * Valores entre Escenas
+  * @typedef {Object} JSON_SCENES
+  * @property {number} id - ID de la Sala
+  * @property {Socket} socket - Socket del cliente
+  * @property {string} username - Nombre de usuario del cliente
+  * @property {string} [host] - ID del socket que es host de la partida
+*/
+
 export default class Lobby extends Phaser.Scene{
+    /**
+     * Constructor
+     */
     constructor(){
         super({
             key: 'Lobby',
@@ -6,10 +22,10 @@ export default class Lobby extends Phaser.Scene{
         this.host;
     }
 
-    static Restart(){
-        this.scene.restart();
-    }
-
+    /**
+     * Inicializador de escena
+     * @param {JSON_SCENES} data Informacion entre escenas 
+     */
     init(data){
         this.roomId = data.id;
         this.server = data.socket;
@@ -37,18 +53,18 @@ export default class Lobby extends Phaser.Scene{
         this.music = this.sound.add("waitMusic");
         this.music.play(musicConfig);
 
+        // Metodo que se encarga de refrescar los nombres de los jugadores
         this.server.on("RefreshLobby", (players) => {
             this.players = players;
         });
 
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-        });
     }
 
     update(){
         this.add.text(640,300, "Room: " + this.roomId, this.font);
         this.add.text(500,300, "In the room are" + "\n" + this.players, this.font);
         
+        // Verifica si el host desea iniciar la partida
         if(this.cursorKeys.space.isDown){
             this.server.emit("isLeader", this.roomId);
             this.server.on("Leader", (host) =>{
@@ -59,8 +75,12 @@ export default class Lobby extends Phaser.Scene{
             });
         }
 
+        // Metodo que se encarga de iniciar la partida por parte del servidor
         this.server.on("RoundStart",() => {
             if(this.scene.isActive()){
+                /**
+                 * @type {JSON_SCENES}
+                 */
                 let data = {
                     username: this.username,
                     server: this.server,

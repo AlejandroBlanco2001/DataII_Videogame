@@ -1,12 +1,20 @@
 /**
  * Representacion de una sala del Servidor
  */
+
+/**
+  * Coordenadas de la entidad
+  * @typedef {Object} JSON
+  * @property {number} x - Posicion X
+  * @property {number} y - Posicion Y
+*/
+
 class Room{
     /**
      * Constructor
      * @param {string} id ID de la sala 
-     * @param {*} host ID del socket que inicia la partida
-     * @param {*} state Partida iniciada 
+     * @param {string} host ID del socket que inicia la partida
+     * @param {boolean} state Partida iniciada 
      */
     constructor(id,host,state){
         this.id = id;
@@ -18,7 +26,7 @@ class Room{
 
     /**
      * Metodo que se encarga de añadir una Spike a la partida
-     * @param {Spike} spike Spike de la partida 
+     * @param {Object} spike Spike de la partida 
      */
     addSpike(spike){
         this.spike = spike; 
@@ -26,6 +34,7 @@ class Room{
 
     /**
      * Metodo que se encarga de obtener la Spike de la partida
+     * @returns - Spike de la room
      */
     getSpike(){
         return this.spike;
@@ -33,7 +42,7 @@ class Room{
 
     /**
      * Metodo que se encarga de actualizar un jugador
-     * @param {Socket} socket Socket del cliente 
+     * @param {Object} socket Socket del cliente 
      * @param {JSON} data Coordenadas del jugador
      */
     updatePlayers(socket,data){
@@ -58,6 +67,7 @@ class Room{
 
     /**
      * Metodo que se encarga de devolver el ID del socket que es host
+     * @returns {string} - ID del socket que es host 
      */
     getHost(){
         return this.host;
@@ -65,6 +75,7 @@ class Room{
 
     /**
      * Metodo que devuelve el ID de la sala
+     * @returns {string} ID de la sala
      */
     getID(){
         return this.id;
@@ -72,8 +83,8 @@ class Room{
 
     /**
      * Metodo que es encarga de añadir jugadores a la sala
-     * @param {Player} player 
-     * @param {Socket} socket 
+     * @param {Object} player - Jugador del cliente a agregar
+     * @param {Object} socket - ID del socket del cliente a agregar
      */
     addPlayer(player,socket){
         if(player != null){
@@ -83,7 +94,7 @@ class Room{
 
     /**
      * Metodo que se encarga de expulsar un jugador si se desconecta
-     * @param {Socket} socketID 
+     * @param {Object} socketID - ID del socket del cliente a expulsar
      */
     expulsePlayer(socketID){
         delete this.sockets[socketID];
@@ -91,6 +102,7 @@ class Room{
 
     /**
      * Metodo que se encarga de obtener la lista de los jugadores de la sala
+     * @returns {string} Nombre de todos los jugadores
      */
     namesPlayer(){
         var players = "";  

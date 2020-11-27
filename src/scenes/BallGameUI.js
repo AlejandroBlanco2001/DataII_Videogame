@@ -1,3 +1,6 @@
+/**
+ * Representacion de la GUI del BallGame
+ */
 export default class BallGameUI extends Phaser.Scene{
     constructor(){
         super({
@@ -18,13 +21,10 @@ export default class BallGameUI extends Phaser.Scene{
         }
         this.music = this.sound.add("gameMusic");
         this.music.play(musicConfig);
-    
+        
+        // Metodo que se encarga de estar atento a la finalizacion del juego
         this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.music.stop();
         });
     }   
-
-    update(){
-
-    }
 }

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: scenes/dist/BallGame.dev.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: scenes/dist/BallGame.dev.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _Player2 = _interopRequireDefault(require("../entities/Character/Player"));
+
+var _spikeBall = _interopRequireDefault(require("../entities/Statics/spikeBall"));
+
+var _EventsCenter = _interopRequireDefault(require("./EventsCenter"));
+
+function _interopRequireDefault(obj) { return obj &amp;&amp; obj.__esModule ? obj : { "default": obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" &amp;&amp; typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj &amp;&amp; typeof Symbol === "function" &amp;&amp; obj.constructor === Symbol &amp;&amp; obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i &lt; props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call &amp;&amp; (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" &amp;&amp; superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass &amp;&amp; superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+/**
+ * Valores de las skins
+ * @type {Array&lt;string>}
+ */
+var availableSkins = ["red", "blue", "yellow", "green"];
+/**
+ * Representacion del Front End del juego
+ */
+
+/**
+  * Valores entre Escenas
+  * @typedef {Object} JSON_SCENES
+  * @property {number} id - ID de la Sala
+  * @property {Socket} socket - Socket del cliente
+  * @property {string} username - Nombre de usuario del cliente
+  * @property {string} [host] - ID del socket que es host de la partida
+*/
+
+var BallGame =
+/*#__PURE__*/
+function (_Phaser$Scene) {
+  _inherits(BallGame, _Phaser$Scene);
+
+  function BallGame() {
+    var _this;
+
+    _classCallCheck(this, BallGame);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(BallGame).call(this, {
+      key: "BallGame",
+      active: false
+    }));
+    _this.player;
+    _this.isPlaying = false;
+    _this.playerObjects = {};
+    _this.lastDead;
+    _this.spikeBall;
+    _this.skin = availableSkins[Math.floor(Math.random() * 4)];
+    return _this;
+  }
+  /**
+   * Inicializador de la clase
+   * @param {JSON_SCENES} data Informacion entre escenas 
+   */
+
+
+  _createClass(BallGame, [{
+    key: "init",
+    value: function init(data) {
+      this.roomID = data.roomID;
+      this.username = data.username;
+      this.server = data.server;
+      this.host = data.host;
+    }
+    /**
+    * Metodo que se encarga de reiniciar el navegador
+    */
+
+  }, {
+    key: "restartBrowser",
+    value: function restartBrowser() {
+      location.reload();
+    }
+    /**
+     * Metodo que se encarga de verificar si el juego ha finalizado
+     */
+
+  }, {
+    key: "gameOver",
+    value: function gameOver() {
+      for (var key in this.playerObjects) {
+        var _Player = this.playerObjects[key];
+
+        if (_Player.active) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }, {
+    key: "preload",
+    value: function preload() {
+      var _this2 = this;
+
+      /**
+       * Variable que impide la generacion de dobles
+       */
+      var notDuplicate = false;
+      /**
+       * Variable que controla la creacion de los jugadores
+       */
+
+      var onlyOneTime = false;
+      var skinName = this.skin;
+      this.scene.launch("BallGameUI"); // images 
+
+      this.load.spritesheet("drake", "src/assets/images/SpriteSheets/" + skinName + ".png", {
+        frameWidth: 24,
+        frameHeight: 24
+      });
+      this.load.image("spike", "src/assets/images/Statics/spikeBall.png");
+      this.load.image("terrain", "src/assets/images/sci-fi-tileset.png");
+      this.load.tilemapTiledJSON("spikeBallMap", "src/assets/map/spikeBallMap.json");
+      this.load.image("win", "src/assets/miscelanous/victory.png");
+      this.load.image("lose", "src/assets/miscelanous/lose.png"); // music
+
+      this.load.audio("winningMusic", "src/assets/music/winningMusic.ogg", "src/assets/music/winningMusic.mp3"); // sounds
+
+      this.load.audio("die", "src/assets/sounds/diePlayer.ogg", "src/assets/sounds/diePlayer.mp3");
+      this.load.audio("crash", "src/assets/sounds/impactWall.ogg", "src/assets/sounds/impactWall.mp3"); // client start gameplay
+
+      this.server.emit("gameStart", this.roomID); // Se encarga de crear los jugadores recibidos por el servidor
+
+      this.server.on("PLAYERS", function (dataPlayers, spikeRoom) {
+        if (!notDuplicate) {
+          for (var key in dataPlayers) {
+            var data = {
+              p: data
+            };
+            var p = dataPlayers[key];
+            var user = p.username;
+            var x = p.x;
+            var y = p.y;
+
+            if (user == _this2.username) {
+              _this2.player = new _Player2["default"](x, y, _this2, "drake", user, _this2.server, _this2.roomID, 0);
+              _this2.playerObjects[user] = _this2.player;
+            } else {
+              var character = new _Player2["default"](x, y, _this2, "drake", user, p.id, _this2.roomID, 0);
+              _this2.playerObjects[user] = character;
+            }
+          }
+
+          if (!onlyOneTime) {
+            _this2.spikeBall = new _spikeBall["default"](_this2, spikeRoom.x, spikeRoom.y, "spike");
+            onlyOneTime = true;
+          }
+        }
+
+        notDuplicate = true;
+      });
+    }
+  }, {
+    key: "create",
+    value: function create() {
+      var _this3 = this;
+
+      // Configuration of the Keyboard       
+      this.keyboard = this.input.keyboard.addKeys("W, A, S, D, space"); // Loading map
+
+      var spikeBallMap = this.add.tilemap("spikeBallMap");
+      this.terrain = spikeBallMap.addTilesetImage("sci-fi-tileset", "terrain"); // music
+
+      this.winningMusic = this.sound.add("winningMusic"); // sounds 
+
+      this.dieSound = this.sound.add("die");
+      this.crashSound = this.sound.add("crash"); // layers 
+
+      var topLayer = spikeBallMap.createStaticLayer("bot", [this.terrain], 0, 0).setDepth(-1);
+      var botLayer = spikeBallMap.createStaticLayer("top", [this.terrain], 0, 0);
+      var spikeBallLayer = spikeBallMap.createStaticLayer("BoxPattern", [this.terrain], 0, 0).setDepth(-2); // set texture to player because server loading 
+
+      this.player.setTexture('drake', 0);
+      this.spikeBall.setTexture("spike"); //map collisions with Player and SpikeBall
+
+      var _loop = function _loop() {
+        _this3.playerObjects[key].setTexture("drake", 0);
+
+        var p = _this3.playerObjects[key]; // Collisions bot layer and player
+
+        _this3.physics.add.collider(p, botLayer);
+
+        botLayer.setCollisionByProperty({
+          collides: true
+        }); // Collisions top layer and player
+
+        _this3.physics.add.collider(p, topLayer);
+
+        topLayer.setCollisionByProperty({
+          collides: true
+        }); // collisions with player and spikeBall
+
+        _this3.physics.add.overlap(p, _this3.spikeBall, function () {
+          _this3.lastDead = p.getUsername();
+          p.destroy(); //this.dieSound.play();
+        }); // collisiones wall-spike
+
+
+        _this3.physics.add.collider(_this3.spikeBall, spikeBallLayer, function () {
+          _this3.spikeBall.faster();
+
+          _this3.crashSound.play();
+        }); // collision Wall-Spike with certain things
+
+
+        spikeBallLayer.setCollisionByProperty({
+          hitByBall: true
+        });
+      };
+
+      for (var key in this.playerObjects) {
+        _loop();
+      } // Setup of the animations (Can be assign to player, don't know, if you do it please, thx)
+
+
+      this.anims.create({
+        key: "rightWalk",
+        frameRate: 15,
+        frames: this.anims.generateFrameNumbers('drake', {
+          frames: [, 18, 19, 20, 21, 22, 23]
+        })
+      });
+      this.anims.create({
+        key: "jumping",
+        frameRate: 15,
+        frames: this.anims.generateFrameNumbers('drake', {
+          frames: [8, 9]
+        })
+      });
+      this.anims.create({
+        key: "SS",
+        frameRate: 15,
+        frames: this.anims.generateFrameNumbers('drake', {
+          frames: [0, 1, 2, 3]
+        })
+      }); // Metodo que se encarga de actualizar las posiciones del jugador 
+
+      this.server.on("UPDATE", function (players) {
+        for (var key in players) {
+          var pServer = players[key];
+          var data = {
+            room: _this3.roomID,
+            x: pServer.x,
+            y: pServer.y
+          };
+
+          _this3.playerObjects[pServer.username].updateCoords(data);
+        }
+      }); // Metodo que se encarga de actualizar la posicion de la spike
+
+      this.server.on("SPIKE_UPDATE", function (spike) {
+        if (spike != null) {
+          var data = {
+            x: spike.x,
+            y: spike.y
+          };
+
+          _this3.spikeBall.updateCoords(data);
+        }
+      });
+      /***
+       * Metodo que se encarga de decidir el ganador de la partida
+       */
+
+      this.server.on("WINNING_SCENE", function () {
+        var musicConfig = {
+          mute: false,
+          volume: 0.3,
+          loop: true,
+          delay: 0
+        };
+
+        if (_this3.lastDead == _this3.player.getUsername()) {
+          _this3.add.image(545, 360, 'win');
+        } else {
+          _this3.add.image(545, 360, 'lose');
+        }
+
+        _this3.scene.stop("BallGameUI");
+
+        _this3.isPlaying = false;
+
+        _this3.winningMusic.play(musicConfig);
+      });
+      /**
+       * Metodo que se encarga de liberar la sala
+       */
+
+      this.server.on("LOBBY_R", function () {
+        _this3.restartBrowser();
+      });
+    }
+    /**
+     * Metodo que se encarga de actualizar y obtener las animaciones 
+     */
+
+  }, {
+    key: "checkAnimation",
+    value: function checkAnimation() {
+      if (this.keyboard.D.isDown) {
+        this.player.play("rightWalk", true);
+      }
+
+      if (this.keyboard.A.isDown) {
+        this.player.anims.playReverse("rightWalk", true);
+      }
+
+      if (this.keyboard.W.isDown &amp;&amp; this.player.body.blocked.down) {
+        this.player.play("jumping", true);
+      }
+
+      if (this.keyboard.A.isUp &amp;&amp; this.keyboard.D.isUp) {
+        // Not moving x 
+        this.player.play("SS", true);
+      }
+
+      this.isPlaying = true;
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      var _this4 = this;
+
+      if (this.player.active) {
+        this.player.update(this.keyboard);
+        this.checkAnimation();
+      } // Host terminar la partida
+
+
+      if (this.host == this.server.id &amp;&amp; this.keyboard.space.isDown &amp;&amp; !this.isPlaying) {
+        this.server.emit("RESTART_GAME", this.roomID);
+      } // Condicion de partida terminada 
+
+
+      if (this.gameOver() &amp;&amp; this.isPlaying) {
+        this.isPlaying = false;
+        this.server.emit("GAME_OVER", this.roomID);
+      } // Intervalo que se encarga de actualizar periodicamente cada 0.01 segundos la posicion de la spike
+
+
+      setInterval(function () {
+        if (_this4.spikeBall.updatePos() != false) {
+          var data = _this4.spikeBall.getNewPos();
+
+          var roomID = _this4.roomID;
+          var r = "roomID";
+          data[r] = roomID;
+
+          _this4.server.emit("UPDATE_SPIKE", data);
+        }
+      }, 100);
+    }
+  }]);
+
+  return BallGame;
+}(Phaser.Scene);
+
+exports["default"] = BallGame;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Documentacion de Move Quick Or Die</a></h2><h3>Classes</h3><ul><li><a href="BaseModel.html">BaseModel</a></li><li><a href="module.exports.html">exports</a></li><li><a href="module.exports_module.exports.html">exports</a></li><li><a href="global.html#Player">Player</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomManager.html">RoomManager</a></li><li><a href="global.html#Spike">Spike</a></li></ul><h3>Global</h3><ul><li><a href="global.html#availableSkins">availableSkins</a></li><li><a href="global.html#BallGameUI">BallGameUI</a></li><li><a href="global.html#checkAnimation">checkAnimation</a></li><li><a href="global.html#checkUserInRoom">checkUserInRoom</a></li><li><a href="global.html#configAABB">configAABB</a></li><li><a href="global.html#faster">faster</a></li><li><a href="global.html#gameOver">gameOver</a></li><li><a href="global.html#generateRandomID">generateRandomID</a></li><li><a href="global.html#getNewPos">getNewPos</a></li><li><a href="global.html#getOrientation">getOrientation</a></li><li><a href="global.html#getRandomRespawn">getRandomRespawn</a></li><li><a href="global.html#getUsername">getUsername</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#io">io</a></li><li><a href="global.html#isAnyRoomAvailable">isAnyRoomAvailable</a></li><li><a href="global.html#posibleRespawnPoints">posibleRespawnPoints</a></li><li><a href="global.html#randomInteger">randomInteger</a></li><li><a href="global.html#restartBrowser">restartBrowser</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#update">update</a></li><li><a href="global.html#updateCoords">updateCoords</a></li><li><a href="global.html#updatePos">updatePos</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Nov 26 2020 18:52:00 GMT-0500 (GMT-05:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

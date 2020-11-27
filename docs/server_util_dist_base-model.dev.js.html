@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: server/util/dist/base-model.dev.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: server/util/dist/base-model.dev.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i &lt; props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * Representacion de una entidad jugable
+ */
+
+/**
+ * Coordenadas de la entidad
+ * @typedef {Object} JSON
+ * @property {number} x - Posicion X
+ * @property {number} y - Posicion Y
+ */
+var BaseModel =
+/*#__PURE__*/
+function () {
+  /**
+   * Constructor
+   * @param {string} id - ID del cliente
+   * @param {number} x  - Posicion en x del cliente
+   * @param {number} y - Posicion en y del cliente
+   */
+  function BaseModel(id, x, y) {
+    _classCallCheck(this, BaseModel);
+
+    this.id = id;
+    this.x = x;
+    this.y = y;
+  }
+  /**
+   * Metodo que devuelve la ID de una entidad jugable
+   * @returns {string} - ID de la sala
+   */
+
+
+  _createClass(BaseModel, [{
+    key: "getID",
+    value: function getID() {
+      return this.id;
+    }
+    /**
+     * Metodo que devuelve la posicion en X de la entidad jugable
+     * @returns {number} - Posicion X de la entidad jugable
+     */
+
+  }, {
+    key: "getX",
+    value: function getX() {
+      return this.x;
+    }
+    /**
+     * Metodo que se encarga de obtener la coordenada en Y de la entidad jugable
+     * @returns {number} - Posicion Y de la entidad jugable
+     */
+
+  }, {
+    key: "getY",
+    value: function getY() {
+      return this.y;
+    }
+    /**
+     * Metood que se encarga de asignar una nueva coordenada en X
+     * @param {number} - Nueva coordenada en X
+     */
+
+  }, {
+    key: "setX",
+    value: function setX(value) {
+      this.x = value;
+    }
+    /**
+     * Metodo que se encarga de asignar una nueva coordenada en Y
+     * @param {number} - Nueva coordenada en Y
+     */
+
+  }, {
+    key: "setY",
+    value: function setY(value) {
+      this.y = value;
+    }
+    /**
+     * Metodo que se encarga de obtener un JSON de las coordendas de la entidad jugable
+     * @returns {JSON} - Coordenadas (x,y) de la entidad jugable
+     */
+
+  }, {
+    key: "getCoords",
+    value: function getCoords() {
+      var data = {
+        x: this.x,
+        y: this.y
+      };
+      return data;
+    }
+  }]);
+
+  return BaseModel;
+}();
+
+module.exports = BaseModel;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Documentacion de Move Quick Or Die</a></h2><h3>Classes</h3><ul><li><a href="BaseModel.html">BaseModel</a></li><li><a href="module.exports.html">exports</a></li><li><a href="module.exports_module.exports.html">exports</a></li><li><a href="global.html#Player">Player</a></li><li><a href="Room.html">Room</a></li><li><a href="RoomManager.html">RoomManager</a></li><li><a href="global.html#Spike">Spike</a></li></ul><h3>Global</h3><ul><li><a href="global.html#availableSkins">availableSkins</a></li><li><a href="global.html#BallGameUI">BallGameUI</a></li><li><a href="global.html#checkAnimation">checkAnimation</a></li><li><a href="global.html#checkUserInRoom">checkUserInRoom</a></li><li><a href="global.html#configAABB">configAABB</a></li><li><a href="global.html#faster">faster</a></li><li><a href="global.html#gameOver">gameOver</a></li><li><a href="global.html#generateRandomID">generateRandomID</a></li><li><a href="global.html#getNewPos">getNewPos</a></li><li><a href="global.html#getOrientation">getOrientation</a></li><li><a href="global.html#getRandomRespawn">getRandomRespawn</a></li><li><a href="global.html#getUsername">getUsername</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#io">io</a></li><li><a href="global.html#isAnyRoomAvailable">isAnyRoomAvailable</a></li><li><a href="global.html#posibleRespawnPoints">posibleRespawnPoints</a></li><li><a href="global.html#randomInteger">randomInteger</a></li><li><a href="global.html#restartBrowser">restartBrowser</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#update">update</a></li><li><a href="global.html#updateCoords">updateCoords</a></li><li><a href="global.html#updatePos">updatePos</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Thu Nov 26 2020 18:52:00 GMT-0500 (GMT-05:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

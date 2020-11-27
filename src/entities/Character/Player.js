@@ -1,6 +1,29 @@
 /**
  * Representacion del jugador
  */
+
+/**
+  * Coordenadas de la entidad
+  * @typedef {Object} JSON
+  * @property {number} x - Posicion X
+  * @property {number} y - Posicion Y
+*/
+
+/**
+  * Coordenadas de la entidad
+  * @typedef {Object} JSON_CONFIG
+  * @property {number} OffsetX - Posicion X
+  * @property {number} OffsetY - Posicion Y
+  * @property {Bounds} Bounds - Limites de la caja AABB 
+*/
+
+/**
+ * Valores de la caja de AABB
+ * @typedef {Object} Bounds
+ * @property {number} width - Limites de ancho
+ * @property {number} height - Limites de altura
+ */
+
 export default class Player extends Phaser.Physics.Arcade.Sprite{
     /**
      * Constructor
@@ -16,11 +39,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
     constructor(x,y,scene,texture,username,socket, roomID,frame){
         super(scene,x,y,texture,frame);
 
-        // Connect with the scene
+        // Sync with the scene
         scene.sys.updateList.add(this);
         scene.sys.displayList.add(this);
         scene.physics.world.enableBody(this);
-
         this.username = username;
 
         // animations usefull things
@@ -56,7 +78,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite{
 
     /**
      * Metodo que se encarga de verificar la caja AABB de colisiones
-     * @param {JSON} config 
+     * @param {JSON_CONFIG} config 
      */
     configAABB(config){
         this.setSize(config.x,config.y).setOffset(config.OffsetX,config.OffsetY);
