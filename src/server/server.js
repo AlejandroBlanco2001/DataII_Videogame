@@ -11,7 +11,7 @@ const { callbackify } = require('util');
 const { Console } = require('console');
 const compiler = webpack(config);
 const RoomManager = require('./models/RoomManager');
-const PORT = process.env.PORT || 5000;
+var PORT = process.env.PORT || 5000;
 
 /**
  * CORS ERROR Management
