@@ -65,7 +65,6 @@ export default class Lobby extends Phaser.Scene{
 
     update(){
         this.add.image(0, 50, "lobby").setScale(0.6).setOrigin(0,0);
-        
         this.add.text(50, 50,"Room: " , {fontFamily:'prueba',color:"#AAA3D9",fontSize:75});
         this.add.text(50, 50,"      " + this.roomId, {color:"#AAA3D9",fontSize:75});
         this.add.text(150,170, "In the room are: " + "\n" + this.players, {fontFamily:'prueba',color:"#AAA3D9",fontSize:75});
