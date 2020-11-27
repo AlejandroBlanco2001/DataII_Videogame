@@ -26,20 +26,23 @@ export default class MainMenu extends Phaser.Scene{
     
     preload(){
         this.load.audio("music", "src/assets/music/gameMusic.ogg","src/assets/music/gameMusic.mp3");
+        this.load.image("fondo","./src/scenes/menu/fondo.png");
     }
 
     create(){
         
-        let font = {
-            fontFamily : "Georgia"
-        }
+        this.add.image(0, 50, "fondo").setScale(0.7).setOrigin(0,0);
 
         this.cursorKeys = this.input.keyboard.createCursorKeys();
         this.server = io();
+        this.add.text(120, 120,"Move quick or Die", {fontFamily:'prueba',fontSize:100,color:"#E0C926",});
+        const Broom = this.add.text(285,370, "Create a Room", {fontFamily:'prueba',color:"#948100",fontSize:70}).setInteractive();
+        Broom.once("pointerdown",()=>this.Nuevo()); // Condicion para que el cliente genere una sala
 
-        this.add.text(640, 100,"Move quick or Die", font);
-        this.add.text(640,300, "Create a Room", font);
-        this.add.text(640,360, "Join Room", font);
+        const Oroom= this.add.text(370,480, "Join Room ", {fontFamily:'prueba',color:"#948100",fontSize:70}).setInteractive();
+        Oroom.once("pointerdown",()=>this.Unir());// Condicion para ingresar un cliente en una sala
+
+        
         this.username = prompt("Ingresa su nombre de usuario");
 
         let musicConfig = {
@@ -52,20 +55,21 @@ export default class MainMenu extends Phaser.Scene{
         this.musicMenu = this.sound.add("music");
         this.musicMenu.play(musicConfig);
     }
-
-    update(){
-        // Condicion para que el cliente genere una sala
-        if(this.cursorKeys.down.isDown){
-            this.server.emit("createRoom",this.username);
-        }
-
-        // Condicion para ingresar un cliente en una sala
-        if(this.cursorKeys.space.isDown){
+    Nuevo(){
+        this.server.emit("createRoom",this.username);
+    }
+    Unir(){
+        if(!this.already){
             let room = prompt("Ingresa la sala a ingresar");
             if(room != null){
                 this.server.emit("joinRoom",room,this.username);
+                this.already = true;
             }
         }
+    }
+
+    update(){
+        
         //Metodo que se encarga de crear la sala por parte del host
         this.server.on("createdRoom", (roomID) => {
             if(this.scene.isActive()){

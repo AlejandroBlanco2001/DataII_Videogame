@@ -2,8 +2,22 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <style>
+      @font-face{
+      font-family: 'prueba';
+      src:url('./src/scenes/menu/StencilOrDie_Italic.TTF');
+    }
+    .fuentes{
+      font-family: 'prueba';
+      position: absolute;
+      top:-3000px;
+    }
+    </style>
+    
+
   </head>
   <body>
+    <div class="fuentes">.</div>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser.min.js"></script>
     <script type="module" src="./src/index.js"></script>
   </body>
