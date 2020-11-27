@@ -36,7 +36,7 @@ app.use(webpackDevMiddleware(compiler,{
 /**
  * Servidor de HTTP que escucha la ventana
  */
-const server = app.listen(PORT, () =>{
+const server = app.listen(5000, () =>{
     console.log("Listening on " + PORT);
 })
 
