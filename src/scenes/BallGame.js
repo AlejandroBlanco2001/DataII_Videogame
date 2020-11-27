@@ -170,7 +170,7 @@ export default class BallGame extends Phaser.Scene{
             this.physics.add.overlap(p,this.spikeBall, () =>{
                 this.lastDead = p.getUsername();
                 p.destroy();
-                //this.dieSound.play();
+                this.dieSound.play();
             });
 
             // collisiones wall-spike
@@ -276,6 +276,8 @@ export default class BallGame extends Phaser.Scene{
     }
 
     update(){
+
+        console.log("MOUSE X" + this.input.mousePointer.x + " Y " + this.input.mousePointer.y);
         if(this.player.active){
             this.player.update(this.keyboard);
             this.checkAnimation();

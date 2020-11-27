@@ -8,7 +8,7 @@ const posibleRespawnPoints = [{x:256,y:627,respawn:false},
     {x:494,y:577,respawn:false},{x:640,y:577,respawn:false},
     {x:861,y:627,respawn:false},{x:868,y:341,respawn:false},
     {x:189,y:367,respawn:false},{x:391,y:214,respawn:false},
-    {x:599,y:286,respawn:false}];
+    {x:497,y:286,respawn:false}];
 
 
 /** 
