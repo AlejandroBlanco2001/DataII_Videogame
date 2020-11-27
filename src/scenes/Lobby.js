@@ -34,6 +34,9 @@ export default class Lobby extends Phaser.Scene{
 
     preload(){
         this.load.audio("waitMusic", "src/assets/music/lobbyWait.ogg","src/assets/music/lobbyWait.mp3");
+        this.load.image("carga","./src/assets/images/Statics/spikeBall.png");
+        this.load.image("lobby","./src/scenes/menu/imagen.jpg");
+
     }
 
     create(){
@@ -61,8 +64,14 @@ export default class Lobby extends Phaser.Scene{
     }
 
     update(){
-        this.add.text(640,300, "Room: " + this.roomId, this.font);
-        this.add.text(500,300, "In the room are" + "\n" + this.players, this.font);
+        this.add.image(0, 50, "lobby").setScale(0.6).setOrigin(0,0);
+        
+        this.add.text(50, 50,"Room: " , {fontFamily:'prueba',color:"#AAA3D9",fontSize:75});
+        this.add.text(50, 50,"      " + this.roomId, {color:"#AAA3D9",fontSize:75});
+        this.add.text(150,170, "In the room are: " + "\n" + this.players, {fontFamily:'prueba',color:"#AAA3D9",fontSize:75});
+        this.add.text(700,665, "Space to Start", {fontFamily:'prueba',color:"#FFFFFF",fontSize:30});
+        this.carga=this.add.image(1045, 679, "carga").setScale(0.17);
+
         
         // Verifica si el host desea iniciar la partida
         if(this.cursorKeys.space.isDown){
